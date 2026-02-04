@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -721,6 +721,20 @@
             color: var(--text-light);
             font-family: 'Montserrat', sans-serif;
         }
+
+        .validation-error {
+            background: #fdeaea;
+            color: #c53030;
+            padding: 0.5rem 0.75rem;
+            border-radius: 3px;
+            font-size: 0.85em;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .validation-error.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -728,7 +742,7 @@
 <nav class="navbar">
     <div class="navbar-content">
         <div class="logo">ODDO<span class="logo-accent">BHF</span></div>
-        <div style="font-size: 0.85em; color: var(--text-gray);">Fund Allocation v3.2</div>
+        <div style="font-size: 0.85em; color: var(--text-gray);">Fund Allocation v3.3 UPDATED</div>
     </div>
 </nav>
 
@@ -786,6 +800,7 @@
                 <h4 style="margin-bottom: 1rem; color: var(--primary); font-family: 'Montserrat', sans-serif;">Sélectionnez les fonds (minimum 5) : <span class="fund-count" id="initialFundCount">0 sélectionnés</span></h4>
                 <div id="initialFundSelector" class="fund-selector"></div>
                 <div id="initialEligibilityNote" class="eligibility-note" style="display: none;"></div>
+                <div id="initialSelectionError" class="validation-error"></div>
             </div>
 
             <h3>📊 Versement Mensuel (€)</h3>
@@ -816,6 +831,7 @@
                 <h4 style="margin-bottom: 1rem; color: var(--primary); font-family: 'Montserrat', sans-serif;">Sélectionnez les fonds (minimum 3) : <span class="fund-count" id="monthlyFundCount">0 sélectionnés</span></h4>
                 <div id="monthlyFundSelector" class="fund-selector"></div>
                 <div id="monthlyEligibilityNote" class="eligibility-note" style="display: none;"></div>
+                <div id="monthlySelectionError" class="validation-error"></div>
             </div>
 
             <div class="button-group">
@@ -907,7 +923,7 @@
 
     <div class="footer">
         <p><strong>© 2026 ODDO BHF Asset Management</strong></p>
-        <p>Professional Edition v3.2 | Document confidentiel distributeurs</p>
+        <p>Professional Edition v3.3 | Document confidentiel distributeurs</p>
     </div>
 </div>
 
@@ -991,7 +1007,7 @@
         }
     };
 
-    // COMPREHENSIVE FUNDS DATABASE - ALL FUNDS
+    // COMPREHENSIVE FUNDS DATABASE - ALL FUNDS UPDATED v3.3
     const funds = [
         // MANDATORY FUNDS FOR CONSERVATIVE & MODERATE
         { fundId: 'fund-securite-infra', name: 'ODDO BHF Sécurité Infra Euro', isin: 'LU0876266276', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'MANDATORY', allocation: 0.10, geographicFocus: 'Europe', esgClassification: 'High', performance1Y: 2.85, fundType: 'UCITS', isMandatory: true },
@@ -999,7 +1015,7 @@
         
         // INCONTOURNABLE - Essential
         { fundId: 'fund-nav', name: 'ODDO BHF Global Navigator', isin: 'LU0568438842', riskLevel: 'Medium', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'INCONTOURNABLE', allocation: 0.25, geographicFocus: 'Global', esgClassification: 'High', performance1Y: 5.32, fundType: 'UCITS' },
-        { fundId: 'fund-ia', name: 'ODDO BHF Artificial Intelligence', isin: 'LU1803984285', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'INCONTOURNABLE', allocation: 0.20, geographicFocus: 'Global', esgClassification: 'High', performance1Y: 8.75, fundType: 'UCITS' },
+        { fundId: 'fund-ia', name: 'ODDO BHF Artificial Intelligence', isin: 'LU1919842267', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'INCONTOURNABLE', allocation: 0.20, geographicFocus: 'Global', esgClassification: 'High', performance1Y: 8.75, fundType: 'UCITS' },
         { fundId: 'fund-ger', name: 'ODDO BHF German Equities', isin: 'LU0502241003', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'INCONTOURNABLE', allocation: 0.18, geographicFocus: 'Europe', esgClassification: 'Medium', performance1Y: 6.42, fundType: 'UCITS' },
         
         // STRATÉGIQUE - Strategic
@@ -1035,13 +1051,56 @@
         { fundId: 'fund-slp-opportunites', name: 'SLP ODDO BHF Opportunités Stratégiques', isin: 'FR001400KK24', riskLevel: 'Very High', assetClass: 'Private Equity', assetType: 'Private Equity', category: 'PE', allocation: 0.12, geographicFocus: 'Global', esgClassification: 'Medium', performance1Y: 7.20, fundType: 'SLP', contractEligible: ['fipavie-ingenierie', 'fipavie-opportunites', 'fipavie-expertises', 'fipavie-transmission', 'per-opportunites', 'premavenir-per'] }
     ];
 
+    // ✅ UPDATED v3.3 - ALL 8 MISSING FUNDS NOW INCLUDED IN EVERY ALLOCATION
     const contracts = {
-        'fipavie-ingenierie': { name: 'Fipavie Ingénierie', funds: { secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-nav', 'fund-target', 'fund-credit', 'fund-moderate', 'fund-polaris', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites'], moderate: ['fund-securite-infra', 'fund-nav', 'fund-metro', 'fund-avenir', 'fund-polaris', 'fund-target', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-metro', 'fund-china', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites'] } },
-        'fipavie-opportunites': { name: 'Fipavie Opportunités', funds: { secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-credit', 'fund-target', 'fund-moderate', 'fund-nav', 'fund-osmo-valeur', 'fund-osmo-energie', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites'], moderate: ['fund-securite-infra', 'fund-metro', 'fund-avenir', 'fund-polaris', 'fund-nav', 'fund-credit', 'fund-osmo-valeur', 'fund-osmo-energie', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-china', 'fund-small', 'fund-osmo-valeur', 'fund-osmo-energie', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites'] } },
-        'fipavie-expertises': { name: 'Fipavie Expertises', funds: { secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-credit', 'fund-target', 'fund-moderate', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites'], moderate: ['fund-securite-infra', 'fund-metro', 'fund-polaris', 'fund-nav', 'fund-avenir', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-china', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites'] } },
-        'fipavie-transmission': { name: 'Fipavie Transmission', funds: { secure: ['fund-securite-infra', 'fund-credit', 'fund-moderate', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites'], moderate: ['fund-securite-infra', 'fund-metro', 'fund-polaris', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites'] } },
-        'per-opportunites': { name: 'PER Opportunités', funds: { secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-credit', 'fund-target', 'fund-moderate', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites'], moderate: ['fund-securite-infra', 'fund-metro', 'fund-polaris', 'fund-nav', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites'] } },
-        'premavenir-per': { name: 'Premavenir PER', funds: { secure: ['fund-securite-infra', 'fund-credit', 'fund-moderate', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites'], moderate: ['fund-securite-infra', 'fund-metro', 'fund-polaris', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites'] } }
+        'fipavie-ingenierie': {
+            name: 'Fipavie Ingénierie',
+            funds: {
+                secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-nav', 'fund-target', 'fund-credit', 'fund-moderate', 'fund-polaris', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                moderate: ['fund-securite-infra', 'fund-nav', 'fund-metro', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-polaris', 'fund-target', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-metro', 'fund-china', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites']
+            }
+        },
+        'fipavie-opportunites': {
+            name: 'Fipavie Opportunités',
+            funds: {
+                secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-credit', 'fund-target', 'fund-moderate', 'fund-nav', 'fund-osmo-valeur', 'fund-osmo-energie', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                moderate: ['fund-securite-infra', 'fund-metro', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-polaris', 'fund-nav', 'fund-credit', 'fund-osmo-valeur', 'fund-osmo-energie', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-osmo-valeur', 'fund-osmo-energie', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites']
+            }
+        },
+        'fipavie-expertises': {
+            name: 'Fipavie Expertises',
+            funds: {
+                secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-credit', 'fund-target', 'fund-moderate', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                moderate: ['fund-securite-infra', 'fund-metro', 'fund-polaris', 'fund-nav', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites']
+            }
+        },
+        'fipavie-transmission': {
+            name: 'Fipavie Transmission',
+            funds: {
+                secure: ['fund-securite-infra', 'fund-credit', 'fund-moderate', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                moderate: ['fund-securite-infra', 'fund-metro', 'fund-polaris', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-slp-opportunites']
+            }
+        },
+        'per-opportunites': {
+            name: 'PER Opportunités',
+            funds: {
+                secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-credit', 'fund-target', 'fund-moderate', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                moderate: ['fund-securite-infra', 'fund-metro', 'fund-polaris', 'fund-nav', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites']
+            }
+        },
+        'premavenir-per': {
+            name: 'Premavenir PER',
+            funds: {
+                secure: ['fund-securite-infra', 'fund-credit', 'fund-moderate', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                moderate: ['fund-securite-infra', 'fund-metro', 'fund-polaris', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china'],
+                dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-china', 'fund-avenir', 'fund-avenir-euro', 'fund-avenir-europe', 'fund-osmo-valeur', 'fund-pe-debt-equity-ii', 'fund-pe-global', 'fund-slp-opportunites']
+            }
+        }
     };
 
     let currentAllocation = null;
@@ -1188,11 +1247,27 @@
     function updateSelectedInitialFunds() {
         selectedInitialFunds = Array.from(document.querySelectorAll('#initialFundSelector input[type="checkbox"]:checked')).map(cb => cb.id.replace('initial_', ''));
         document.getElementById('initialFundCount').textContent = selectedInitialFunds.length + ' sélectionnés';
+        
+        const errorDiv = document.getElementById('initialSelectionError');
+        if (selectedInitialFunds.length < 5 && selectedInitialFunds.length > 0) {
+            errorDiv.textContent = `⚠️ Minimum 5 fonds requis (${selectedInitialFunds.length}/5)`;
+            errorDiv.classList.add('show');
+        } else {
+            errorDiv.classList.remove('show');
+        }
     }
 
     function updateSelectedMonthlyFunds() {
         selectedMonthlyFunds = Array.from(document.querySelectorAll('#monthlyFundSelector input[type="checkbox"]:checked')).map(cb => cb.id.replace('monthly_', ''));
         document.getElementById('monthlyFundCount').textContent = selectedMonthlyFunds.length + ' sélectionnés';
+        
+        const errorDiv = document.getElementById('monthlySelectionError');
+        if (selectedMonthlyFunds.length < 3 && selectedMonthlyFunds.length > 0) {
+            errorDiv.textContent = `⚠️ Minimum 3 fonds requis (${selectedMonthlyFunds.length}/3)`;
+            errorDiv.classList.add('show');
+        } else {
+            errorDiv.classList.remove('show');
+        }
     }
 
     function toggleInitialManualSelection() {
@@ -1286,11 +1361,11 @@
         }
 
         if (document.getElementById('manualInitial').checked && selectedInitialFunds.length < 5) {
-            errors.push('❌ Veuillez sélectionner au minimum 5 fonds pour le versement initial');
+            errors.push(`❌ Minimum 5 fonds requis pour versement initial (${selectedInitialFunds.length} sélectionné(s))`);
         }
 
         if (document.getElementById('manualMonthly').checked && selectedMonthlyFunds.length < 3) {
-            errors.push('❌ Veuillez sélectionner au minimum 3 fonds pour le versement mensuel');
+            errors.push(`❌ Minimum 3 fonds requis pour versement mensuel (${selectedMonthlyFunds.length} sélectionné(s))`);
         }
 
         if (errors.length > 0) {
@@ -1329,8 +1404,9 @@
         const initialSelectedFunds = funds.filter(f => initialFundIds.includes(f.fundId));
         const monthlySelectedFunds = funds.filter(f => monthlyFundIds.includes(f.fundId));
 
-        const initialAllocation = allocateFundsWithConstraints(initialSelectedFunds, initialFunding, initialProfile, 5, 10);
-        const monthlyAllocation = allocateFundsWithConstraints(monthlySelectedFunds, monthlyFunding, monthlyProfile, 3, monthlySelectedFunds.length, 50);
+        // ✅ KEY FIX: Enforce minimum fund numbers
+        const initialAllocation = allocateFundsWithConstraints(initialSelectedFunds, initialFunding, initialProfile, 5, Math.max(5, Math.ceil(initialSelectedFunds.length * 0.6)));
+        const monthlyAllocation = allocateFundsWithConstraints(monthlySelectedFunds, monthlyFunding, monthlyProfile, 3, Math.max(3, Math.ceil(monthlySelectedFunds.length * 0.5)), 50);
 
         if (!initialAllocation || !monthlyAllocation) {
             showMsg('❌ Impossible d\'allouer les fonds tout en respectant les contraintes du profil', 'error');
@@ -1344,10 +1420,10 @@
         const monthlyMinPerf = performanceMinimums[monthlyProfile].min;
 
         if (initialPerf < initialMinPerf) {
-            showMsg(`⚠️ La performance moyenne du versement initial (${initialPerf.toFixed(2)}%) est inférieure au minimum recommandé (${initialMinPerf}%)`, 'warning');
+            showMsg(`⚠️ Performance versement initial: ${initialPerf.toFixed(2)}% (min recommandé: ${initialMinPerf}%)`, 'warning');
         }
         if (monthlyPerf < monthlyMinPerf) {
-            showMsg(`⚠️ La performance moyenne du versement mensuel (${monthlyPerf.toFixed(2)}%) est inférieure au minimum recommandé (${monthlyMinPerf}%)`, 'warning');
+            showMsg(`⚠️ Performance versement mensuel: ${monthlyPerf.toFixed(2)}% (min recommandé: ${monthlyMinPerf}%)`, 'warning');
         }
 
         currentAllocation = {
@@ -1372,6 +1448,7 @@
         const mandatoryAllocations = [];
         let remainingAmount = totalAmount;
         
+        // ✅ FIXED: Allocate mandatory funds first
         mandatoryFunds.forEach(mandatory => {
             const fundData = fundsList.find(f => f.fundId === mandatory.fundId);
             if (fundData) {
@@ -1387,7 +1464,8 @@
         });
 
         const nonMandatoryFunds = fundsList.filter(f => !mandatoryFunds.some(m => m.fundId === f.fundId));
-        const numFunds = Math.min(maxFunds, Math.max(minFunds, Math.ceil(nonMandatoryFunds.length / 2)));
+        // ✅ FIXED: Ensure we select AT LEAST minFunds (typically 5 for initial, 3 for monthly)
+        const numFunds = Math.max(minFunds, Math.min(maxFunds, nonMandatoryFunds.length));
         const selectedFundsList = nonMandatoryFunds.slice(0, numFunds - mandatoryAllocations.length);
         
         const amountPerFund = Math.floor(remainingAmount / selectedFundsList.length / 50) * 50;
@@ -1417,7 +1495,7 @@
             percentage: (alloc.calculatedAmount / totalAmount) * 100
         }));
 
-        return allAllocationsWithPercentages;
+        return allAllocationsWithPercentages.length >= minFunds ? allAllocationsWithPercentages : null;
     }
 
     function calculateWeightedPerformance(allocation) {
