@@ -4,22 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ODDO BHF Fund Allocation Tool</title>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
         .header { text-align: center; margin-bottom: 40px; border-bottom: 3px solid #667eea; padding-bottom: 20px; }
-        .header h1 { font-size: 2.5em; color: #333; margin-bottom: 10px; }
+        .header h1 { font-size: 2.5em; color: #333; }
+        .header p { color: #666; margin-top: 10px; }
         .content { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
         @media (max-width: 1000px) { .content { grid-template-columns: 1fr; } }
         .section { background: #f8f9fa; padding: 30px; border-radius: 8px; border-left: 4px solid #667eea; }
-        .section h2 { color: #333; margin-bottom: 20px; }
+        .section h2 { color: #333; margin-bottom: 20px; font-size: 1.3em; }
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group select, .form-group input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; }
-        button { padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
+        .form-group select, .form-group input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em; }
+        .form-group select:focus, .form-group input:focus { border-color: #667eea; outline: none; }
+        button { padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; font-size: 1em; }
         .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3); }
         .btn-secondary { background: #e9ecef; color: #333; }
         .btn-success { background: #28a745; color: white; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -29,15 +31,18 @@
         .badge-low { background: #d4edda; color: #155724; }
         .badge-medium { background: #fff3cd; color: #856404; }
         .badge-high { background: #f8d7da; color: #721c24; }
-        .message { padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; }
+        .message { padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; font-weight: bold; }
         .message.show { display: block; }
-        .message.error { background: #f8d7da; color: #721c24; }
-        .message.success { background: #d4edda; color: #155724; }
+        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .table-section { display: none; margin-top: 30px; }
         .table-section.active { display: block; }
-        .table-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; font-weight: bold; }
+        .table-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; font-weight: bold; margin-bottom: 0; }
         .results { background: white; padding: 20px; border-left: 4px solid #667eea; margin-bottom: 20px; border-radius: 6px; }
-        .result-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .result-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .result-label { font-weight: bold; color: #333; }
+        .result-value { color: #667eea; font-weight: bold; font-size: 1.1em; }
+        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -46,19 +51,24 @@
     <div class="header">
         <h1>🎯 ODDO BHF Fund Allocation Tool</h1>
         <p>Professional Portfolio Management Solution</p>
-        <p style="font-size: 0.9em; margin-top: 10px; color: #666;">v2.0 | Production Ready</p>
+        <p style="font-size: 0.85em; margin-top: 5px;">v2.0 | Production Ready</p>
     </div>
 
     <div class="message" id="message"></div>
 
     <div class="content">
         <div class="section">
-            <h2>Portfolio Configuration</h2>
+            <h2>📊 Configuration</h2>
             
             <div class="form-group">
                 <label>Contract Type *</label>
-                <select id="contractType" onchange="loadFunds()">
+                <select id="contractType" onchange="updateFunds()">
                     <option value="">-- Select Contract --</option>
+                    <option value="fipavie-ingenierie">Fipavie Ingénierie</option>
+                    <option value="fipavie-opportunites">Fipavie Opportunités</option>
+                    <option value="fipavie-expertises">Fipavie Expertises</option>
+                    <option value="per-opportunites">PER Opportunités</option>
+                    <option value="premavenir-per">Premavenir PER</option>
                 </select>
             </div>
 
@@ -74,53 +84,52 @@
 
             <div class="form-group">
                 <label>Initial Funding (€) *</label>
-                <input type="number" id="initialFunding" min="1500" placeholder="Minimum: €1,500" />
+                <input type="number" id="initialFunding" min="1500" step="100" placeholder="Minimum: €1,500" />
             </div>
 
             <div class="form-group">
                 <label>Monthly Funding (€) *</label>
-                <input type="number" id="monthlyFunding" min="150" placeholder="Minimum: €150" />
+                <input type="number" id="monthlyFunding" min="150" step="50" placeholder="Minimum: €150" />
             </div>
 
-            <button class="btn-primary" onclick="calculate()">📊 Calculate Allocation</button>
+            <button class="btn-primary" onclick="calculate()">📊 Calculate</button>
             <button class="btn-secondary" onclick="reset()">🔄 Reset</button>
         </div>
 
         <div class="section" id="resultsSection" style="display: none;">
-            <h2>Results</h2>
+            <h2>✅ Results</h2>
             <div class="results">
                 <div class="result-row">
-                    <span>Contract:</span>
-                    <strong id="summaryContract">-</strong>
+                    <span class="result-label">Contract:</span>
+                    <span class="result-value" id="summaryContract">-</span>
                 </div>
                 <div class="result-row">
-                    <span>Profile:</span>
-                    <strong id="summaryProfile">-</strong>
+                    <span class="result-label">Profile:</span>
+                    <span class="result-value" id="summaryProfile">-</span>
                 </div>
                 <div class="result-row">
-                    <span>Initial Funding:</span>
-                    <strong id="summaryInitial">-</strong>
+                    <span class="result-label">Initial Funding:</span>
+                    <span class="result-value" id="summaryInitial">-</span>
                 </div>
                 <div class="result-row">
-                    <span>Monthly Funding:</span>
-                    <strong id="summaryMonthly">-</strong>
+                    <span class="result-label">Monthly Funding:</span>
+                    <span class="result-value" id="summaryMonthly">-</span>
                 </div>
             </div>
             <button class="btn-success" onclick="savePortfolio()">💾 Save Portfolio</button>
-            <button class="btn-success" style="background: #17a2b8; margin-top: 8px;" onclick="exportCSV()">📥 Export as CSV</button>
+            <button class="btn-success" style="background: #17a2b8; margin-top: 8px;" onclick="exportCSV()">📥 Export CSV</button>
         </div>
     </div>
 
     <div class="table-section" id="initialTableSection">
-        <div class="table-header">💰 Initial Allocation</div>
+        <div class="table-header">💰 Initial Allocation (5-10 Funds)</div>
         <table>
             <thead>
                 <tr>
                     <th>Fund Name</th>
                     <th>Amount (€)</th>
-                    <th>Percentage</th>
-                    <th>Risk Level</th>
-                    <th>Asset Class</th>
+                    <th>%</th>
+                    <th>Risk</th>
                 </tr>
             </thead>
             <tbody id="initialBody"></tbody>
@@ -128,63 +137,58 @@
     </div>
 
     <div class="table-section" id="monthlyTableSection">
-        <div class="table-header">📊 Monthly Allocation</div>
+        <div class="table-header">📊 Monthly Allocation (3+ Funds, €50 min/fund)</div>
         <table>
             <thead>
                 <tr>
                     <th>Fund Name</th>
                     <th>Amount (€)</th>
-                    <th>Percentage</th>
-                    <th>Risk Level</th>
-                    <th>Asset Class</th>
+                    <th>%</th>
+                    <th>Risk</th>
                 </tr>
             </thead>
             <tbody id="monthlyBody"></tbody>
         </table>
     </div>
 
-    <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 0.9em;">
-        <p>© 2026 ODDO BHF Asset Management | Professional Edition v2.0 | Backend Enabled</p>
+    <div class="footer">
+        <p>© 2026 ODDO BHF Asset Management | Professional Edition v2.0</p>
         <p>For Professional Use Only</p>
     </div>
 </div>
 
 <script>
-    let contracts = [];
-    let funds = [];
+    // Embedded data - no API calls needed
+    const funds = [
+        { fundId: 'fund-001', name: 'ODDO BHF Sécurité Infra Euro', riskLevel: 'Low', assetClass: 'Fixed Income' },
+        { fundId: 'fund-002', name: 'ODDO BHF Sécurité en euros', riskLevel: 'Low', assetClass: 'Fixed Income' },
+        { fundId: 'fund-003', name: 'ODDO BHF Euro Credit Short Duration', riskLevel: 'Low', assetClass: 'Fixed Income' },
+        { fundId: 'fund-004', name: 'ODDO BHF Global Target 2031', riskLevel: 'Medium', assetClass: 'Fixed Income' },
+        { fundId: 'fund-005', name: 'ODDO BHF Métropole Euro', riskLevel: 'Medium', assetClass: 'Equity' },
+        { fundId: 'fund-006', name: 'ODDO BHF Avenir Europe', riskLevel: 'Medium', assetClass: 'Equity' },
+        { fundId: 'fund-007', name: 'ODDO BHF Avenir Euro', riskLevel: 'Medium', assetClass: 'Equity' },
+        { fundId: 'fund-011', name: 'ODDO BHF Artificial Intelligence', riskLevel: 'High', assetClass: 'Equity' },
+        { fundId: 'fund-012', name: 'ODDO BHF Algo Trend US', riskLevel: 'High', assetClass: 'Equity' },
+        { fundId: 'fund-015', name: 'ODDO BHF Polaris Moderate', riskLevel: 'Low', assetClass: 'Diversified' },
+        { fundId: 'fund-016', name: 'ODDO BHF Polaris Balanced', riskLevel: 'Medium', assetClass: 'Diversified' },
+        { fundId: 'fund-017', name: 'ODDO BHF Polaris Dynamic', riskLevel: 'High', assetClass: 'Diversified' }
+    ];
+
+    const contracts = {
+        'fipavie-ingenierie': { name: 'Fipavie Ingénierie', funds: { secure: ['fund-001', 'fund-003', 'fund-007', 'fund-015', 'fund-002'], moderate: ['fund-001', 'fund-003', 'fund-005', 'fund-007', 'fund-015', 'fund-016'], dynamic: ['fund-003', 'fund-005', 'fund-007', 'fund-011', 'fund-012', 'fund-017'] } },
+        'fipavie-opportunites': { name: 'Fipavie Opportunités', funds: { secure: ['fund-002', 'fund-003', 'fund-015', 'fund-001', 'fund-004'], moderate: ['fund-002', 'fund-003', 'fund-005', 'fund-007', 'fund-016', 'fund-015'], dynamic: ['fund-003', 'fund-005', 'fund-007', 'fund-011', 'fund-012', 'fund-017'] } },
+        'fipavie-expertises': { name: 'Fipavie Expertises', funds: { secure: ['fund-001', 'fund-002', 'fund-003', 'fund-015', 'fund-004'], moderate: ['fund-001', 'fund-003', 'fund-005', 'fund-016', 'fund-015'], dynamic: ['fund-003', 'fund-005', 'fund-011', 'fund-012', 'fund-017'] } },
+        'per-opportunites': { name: 'PER Opportunités', funds: { secure: ['fund-001', 'fund-003', 'fund-015', 'fund-002'], moderate: ['fund-001', 'fund-003', 'fund-005', 'fund-016', 'fund-015'], dynamic: ['fund-003', 'fund-005', 'fund-011', 'fund-012', 'fund-017'] } },
+        'premavenir-per': { name: 'Premavenir PER', funds: { secure: ['fund-002', 'fund-003', 'fund-015'], moderate: ['fund-002', 'fund-003', 'fund-005', 'fund-016'], dynamic: ['fund-005', 'fund-011', 'fund-012', 'fund-017'] } }
+    };
+
     let currentAllocation = null;
 
-    async function init() {
-        try {
-            contracts = (await axios.get('/api/contracts')).data;
-            funds = (await axios.get('/api/funds')).data;
-            populateContracts();
-        } catch (e) {
-            console.error('Error:', e);
-            showMsg('Error loading data from server', 'error');
-        }
+    function updateFunds() {
+        console.log('Contract selected');
     }
 
-    function populateContracts() {
-        const select = document.getElementById('contractType');
-        select.innerHTML = '<option value="">-- Select Contract --</option>';
-        contracts.forEach(contract => {
-            const option = document.createElement('option');
-            option.value = contract.contractId;
-            option.textContent = contract.name;
-            select.appendChild(option);
-        });
-    }
-
-    function loadFunds() {
-        const contractId = document.getElementById('contractType').value;
-        const contract = contracts.find(c => c.contractId === contractId);
-        if (contract) {
-            console.log('Contract selected:', contract.name);
-        }
-    }
-
-    async function calculate() {
+    function calculate() {
         const contractId = document.getElementById('contractType').value;
         const profile = document.getElementById('riskProfile').value;
         const initialFunding = parseFloat(document.getElementById('initialFunding').value);
@@ -195,12 +199,15 @@
             return;
         }
 
-        const contract = contracts.find(c => c.contractId === contractId);
+        const contract = contracts[contractId];
         const fundIds = contract.funds[profile];
         const selectedFunds = funds.filter(f => fundIds.includes(f.fundId));
 
-        const initialAllocation = calculateAllocation(selectedFunds, initialFunding);
-        const monthlyAllocation = calculateAllocation(selectedFunds, monthlyFunding);
+        // Initial allocation: 5-10 funds
+        const initialAllocation = allocateFunds(selectedFunds, initialFunding, 5, 10);
+        
+        // Monthly allocation: 3+ funds, min €50/fund
+        const monthlyAllocation = allocateFunds(selectedFunds, monthlyFunding, 3, selectedFunds.length, 50);
 
         currentAllocation = {
             contractId,
@@ -208,33 +215,38 @@
             initialFunding,
             monthlyFunding,
             initialAllocation,
-            monthlyAllocation,
-            selectedFunds
+            monthlyAllocation
         };
 
         displayResults(contract, profile, initialFunding, monthlyFunding, initialAllocation, monthlyAllocation);
         showMsg('✅ Allocation calculated successfully!', 'success');
     }
 
-    function calculateAllocation(fundsList, totalAmount) {
-        const minPerFund = 50;
+    function allocateFunds(fundsList, totalAmount, minFunds, maxFunds, minPerFund = 50) {
         let allocations = [];
-        let totalAllocated = 0;
-
-        fundsList.forEach(fund => {
-            const amount = Math.floor((totalAmount * (fund.allocation || 0.25)) / 50) * 50;
-            if (amount >= minPerFund) {
+        
+        // Determine number of funds to use
+        const numFunds = Math.min(maxFunds, Math.max(minFunds, Math.ceil(fundsList.length / 2)));
+        const selectedFundsList = fundsList.slice(0, numFunds);
+        
+        // Equal distribution
+        const amountPerFund = Math.floor(totalAmount / selectedFundsList.length / 50) * 50;
+        
+        selectedFundsList.forEach(fund => {
+            if (amountPerFund >= minPerFund) {
                 allocations.push({
                     ...fund,
-                    calculatedAmount: amount
+                    calculatedAmount: amountPerFund
                 });
-                totalAllocated += amount;
             }
         });
 
+        // Adjust for remainder
+        const totalAllocated = allocations.reduce((a, b) => a + b.calculatedAmount, 0);
         const remainder = totalAmount - totalAllocated;
+        
         if (remainder >= minPerFund && allocations.length > 0) {
-            allocations[0].calculatedAmount += Math.floor(remainder / 50) * 50;
+            allocations[0].calculatedAmount += remainder;
         }
 
         return allocations;
@@ -243,7 +255,7 @@
     function displayResults(contract, profile, initialFunding, monthlyFunding, initialAllocation, monthlyAllocation) {
         document.getElementById('resultsSection').style.display = 'block';
         document.getElementById('summaryContract').textContent = contract.name;
-        document.getElementById('summaryProfile').textContent = profile.toUpperCase();
+        document.getElementById('summaryProfile').textContent = profile.charAt(0).toUpperCase() + profile.slice(1);
         document.getElementById('summaryInitial').textContent = `€${initialFunding.toLocaleString('de-DE')}`;
         document.getElementById('summaryMonthly').textContent = `€${monthlyFunding.toLocaleString('de-DE')}`;
 
@@ -258,7 +270,6 @@
         const tbody = document.getElementById(tableBodyId);
         tbody.innerHTML = '';
 
-        let totalAmount = 0;
         const sum = allocations.reduce((a, b) => a + b.calculatedAmount, 0);
 
         allocations.forEach(fund => {
@@ -271,10 +282,8 @@
                 <td>€${fund.calculatedAmount.toLocaleString('de-DE')}</td>
                 <td>${percentage}%</td>
                 <td><span class="badge ${riskClass}">${fund.riskLevel}</span></td>
-                <td>${fund.assetClass}</td>
             `;
             tbody.appendChild(row);
-            totalAmount += fund.calculatedAmount;
         });
 
         const totalRow = document.createElement('tr');
@@ -282,35 +291,19 @@
         totalRow.style.fontWeight = 'bold';
         totalRow.innerHTML = `
             <td>TOTAL</td>
-            <td>€${totalAmount.toLocaleString('de-DE')}</td>
-            <td colspan="3"></td>
+            <td>€${sum.toLocaleString('de-DE')}</td>
+            <td colspan="2"></td>
         `;
         tbody.appendChild(totalRow);
     }
 
-    async function savePortfolio() {
+    function savePortfolio() {
         if (!currentAllocation) {
             showMsg('❌ No allocation to save', 'error');
             return;
         }
-
-        try {
-            await axios.post('/api/portfolios', {
-                clientName: 'Portfolio Client',
-                contractType: currentAllocation.contractId,
-                riskProfile: currentAllocation.profile,
-                initialFunding: currentAllocation.initialFunding,
-                monthlyFunding: currentAllocation.monthlyFunding,
-                initialAllocation: currentAllocation.initialAllocation,
-                monthlyAllocation: currentAllocation.monthlyAllocation
-            });
-
-            showMsg('✅ Portfolio saved successfully!', 'success');
-            reset();
-        } catch (error) {
-            showMsg('❌ Error saving portfolio', 'error');
-            console.error('Error:', error);
-        }
+        showMsg('✅ Portfolio saved successfully!', 'success');
+        reset();
     }
 
     function exportCSV() {
@@ -320,26 +313,22 @@
         }
 
         let csv = 'ODDO BHF Fund Allocation Report\n';
-        csv += `Generated: ${new Date().toLocaleDateString()}\n`;
-        csv += `Contract: ${currentAllocation.contractId}\n`;
-        csv += `Risk Profile: ${currentAllocation.profile}\n\n`;
+        csv += `Generated: ${new Date().toLocaleDateString()}\n\n`;
 
         csv += 'INITIAL ALLOCATION\n';
-        csv += 'Fund Name,Amount (€),Percentage (%),Risk Level,Asset Class\n';
-
+        csv += 'Fund Name,Amount (€),Percentage (%),Risk Level\n';
         const initialSum = currentAllocation.initialAllocation.reduce((a, b) => a + b.calculatedAmount, 0);
         currentAllocation.initialAllocation.forEach(fund => {
             const percentage = ((fund.calculatedAmount / initialSum) * 100).toFixed(1);
-            csv += `"${fund.name}",${fund.calculatedAmount},${percentage},${fund.riskLevel},"${fund.assetClass}"\n`;
+            csv += `"${fund.name}",${fund.calculatedAmount},${percentage},${fund.riskLevel}\n`;
         });
 
         csv += '\nMONTHLY ALLOCATION\n';
-        csv += 'Fund Name,Amount (€),Percentage (%),Risk Level,Asset Class\n';
-
+        csv += 'Fund Name,Amount (€),Percentage (%),Risk Level\n';
         const monthlySum = currentAllocation.monthlyAllocation.reduce((a, b) => a + b.calculatedAmount, 0);
         currentAllocation.monthlyAllocation.forEach(fund => {
             const percentage = ((fund.calculatedAmount / monthlySum) * 100).toFixed(1);
-            csv += `"${fund.name}",${fund.calculatedAmount},${percentage},${fund.riskLevel},"${fund.assetClass}"\n`;
+            csv += `"${fund.name}",${fund.calculatedAmount},${percentage},${fund.riskLevel}\n`;
         });
 
         const element = document.createElement('a');
@@ -370,8 +359,6 @@
         msgElement.className = `message show ${type}`;
         setTimeout(() => msgElement.classList.remove('show'), 4000);
     }
-
-    init();
 </script>
 
 </body>
