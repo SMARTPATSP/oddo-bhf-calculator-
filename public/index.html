@@ -4,29 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ODDO BHF Fund Allocation Tool</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
-            --primary: #1a3a52;
-            --primary-light: #2d5a80;
+            --primary: #2b2b2b;
+            --secondary: #3d3d3d;
             --accent: #c9a961;
             --accent-light: #d4b373;
-            --bg-light: #f8f9fa;
+            --bg-light: #f5f5f5;
             --bg-white: #ffffff;
-            --text-dark: #2c3e50;
-            --text-gray: #6c757d;
-            --border-color: #e0e6ed;
+            --text-dark: #333333;
+            --text-gray: #666666;
+            --text-light: #999999;
+            --border-color: #e0e0e0;
             --success: #27ae60;
             --warning: #f39c12;
             --danger: #e74c3c;
-            --info: #3498db;
+            --info: #7a7a7a;
         }
 
         body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f5f7fa;
+            font-family: 'Lora', serif; 
+            background-color: #fafafa;
             color: var(--text-dark);
             line-height: 1.6;
         }
@@ -38,7 +39,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .navbar-content {
@@ -51,15 +52,17 @@
         }
 
         .logo {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.4em;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3em;
             font-weight: 700;
             color: var(--primary);
-            letter-spacing: -0.5px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         .logo-accent {
             color: var(--accent);
+            font-weight: 400;
         }
 
         .container { 
@@ -74,18 +77,20 @@
         }
 
         .header h1 { 
-            font-family: 'Poppins', sans-serif;
-            font-size: 2.8em;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5em;
             color: var(--primary);
             margin-bottom: 0.5rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .header p { 
             color: var(--text-gray); 
-            font-size: 1.1em;
+            font-size: 1.05em;
             margin-bottom: 0.5rem;
+            font-weight: 300;
         }
 
         .header .subtitle {
@@ -109,33 +114,39 @@
 
         .card {
             background: var(--bg-white);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 2px 12px rgba(26, 58, 82, 0.08);
+            border-radius: 8px;
+            padding: 2.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
             border: 1px solid var(--border-color);
         }
 
         .card:hover {
-            box-shadow: 0 4px 20px rgba(26, 58, 82, 0.12);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
         }
 
         .card h2 { 
             color: var(--primary);
-            margin-bottom: 1.5rem;
-            font-size: 1.5em;
+            margin-bottom: 2rem;
+            font-size: 1.4em;
             font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .card h3 { 
             color: var(--primary);
             margin-bottom: 1rem;
-            margin-top: 1.5rem;
-            font-size: 1.1em;
+            margin-top: 2rem;
+            font-size: 1em;
             font-weight: 600;
-            padding-bottom: 0.5rem;
+            font-family: 'Montserrat', sans-serif;
+            padding-bottom: 0.75rem;
             border-bottom: 2px solid var(--accent);
             display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-group { 
@@ -148,6 +159,7 @@
             font-weight: 500;
             color: var(--text-dark);
             font-size: 0.95em;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .form-group select, 
@@ -155,9 +167,9 @@
             width: 100%; 
             padding: 0.85rem 1rem; 
             border: 1px solid var(--border-color); 
-            border-radius: 8px; 
+            border-radius: 4px; 
             font-size: 1em;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Lora', serif;
             background: var(--bg-white);
             color: var(--text-dark);
             transition: all 0.2s ease;
@@ -185,7 +197,7 @@
         .checkbox-group {
             background: var(--bg-light);
             padding: 1.2rem;
-            border-radius: 8px;
+            border-radius: 4px;
             margin: 1rem 0;
             border-left: 4px solid var(--accent);
         }
@@ -209,6 +221,7 @@
             font-weight: 400;
             cursor: pointer;
             flex: 1;
+            font-size: 0.95em;
         }
 
         .button-group {
@@ -227,12 +240,14 @@
         button {
             padding: 1rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 4px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 1em;
-            font-family: 'Inter', sans-serif;
+            font-size: 0.95em;
+            font-family: 'Montserrat', sans-serif;
             transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-primary {
@@ -241,9 +256,9 @@
         }
 
         .btn-primary:hover {
-            background: var(--primary-light);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(26, 58, 82, 0.2);
+            background: var(--secondary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
         .btn-secondary {
@@ -263,13 +278,13 @@
 
         .btn-success:hover {
             background: #229954;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
         }
 
         .message {
             padding: 1.2rem;
-            border-radius: 8px;
+            border-radius: 4px;
             margin-bottom: 1.5rem;
             display: none;
             font-weight: 500;
@@ -295,21 +310,21 @@
         .message.warning {
             background: #fff5e1;
             color: #7d4f00;
-            border-left-color: #f39c12;
+            border-left-color: var(--accent);
         }
 
         .results {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             padding: 2rem;
-            border-radius: 12px;
+            border-radius: 4px;
             margin-bottom: 1.5rem;
         }
 
         .result-row {
             display: flex;
             justify-content: space-between;
-            padding: 1rem 0;
+            padding: 0.8rem 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
@@ -342,48 +357,55 @@
             color: white;
             padding: 1.5rem;
             font-weight: 700;
-            border-radius: 12px 12px 0 0;
-            font-size: 1.1em;
+            border-radius: 4px 4px 0 0;
+            font-size: 1em;
             letter-spacing: 0.5px;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
         }
 
         .table-responsive {
             overflow-x: auto;
             background: var(--bg-white);
-            border-radius: 0 0 12px 12px;
-            box-shadow: 0 2px 12px rgba(26, 58, 82, 0.08);
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.95em;
+            font-size: 0.9em;
         }
 
         th {
-            background: #f8f9fa;
+            background: var(--bg-light);
             padding: 1rem;
             text-align: left;
             font-weight: 600;
             color: var(--text-dark);
             border-bottom: 2px solid var(--border-color);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         td {
-            padding: 1rem;
+            padding: 0.9rem 1rem;
             border-bottom: 1px solid var(--border-color);
         }
 
         tbody tr:hover {
-            background-color: #f8f9fa;
+            background-color: var(--bg-light);
         }
 
         .badge {
             display: inline-block;
             padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.8em;
+            border-radius: 3px;
+            font-size: 0.75em;
             font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .badge-low {
@@ -402,17 +424,18 @@
         }
 
         .badge-very-high {
-            background: #e1c7d4;
-            color: #742a54;
+            background: #e8e8e8;
+            color: #333333;
         }
 
         .recommendation-badge {
             display: inline-block;
             padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.75em;
+            border-radius: 3px;
+            font-size: 0.7em;
             font-weight: 600;
             margin-left: 0.5rem;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .badge-incontournable {
@@ -421,35 +444,36 @@
         }
 
         .badge-strategique {
-            background: #d6f1ff;
-            color: #0066cc;
+            background: #f0f0f0;
+            color: #333333;
         }
 
         .badge-portage {
-            background: #ffe6e6;
+            background: #fdeaea;
             color: #c53030;
         }
 
         .badge-coup {
-            background: #f3d9e6;
-            color: #742a54;
+            background: #f5f0ff;
+            color: #4a4a4a;
         }
 
         .badge-immobilier {
-            background: #e6f7e6;
-            color: #27ae60;
+            background: #e8f4f8;
+            color: #2c5a80;
         }
 
         .badge-pe {
             background: #f0e6ff;
-            color: #6c2b8a;
+            color: #4a4a4a;
         }
 
         .esg-badge {
             padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.8em;
+            border-radius: 3px;
+            font-size: 0.75em;
             font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .esg-high {
@@ -468,17 +492,18 @@
         }
 
         .geo-badge {
-            background: #d6f1ff;
-            color: #0066cc;
+            background: #f0f0f0;
+            color: #333333;
             padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.8em;
+            border-radius: 3px;
+            font-size: 0.75em;
+            border-left: 3px solid var(--accent);
         }
 
         .constraints-box {
-            background: #f0f6ff;
+            background: #f9f9f9;
             padding: 1.5rem;
-            border-radius: 8px;
+            border-radius: 4px;
             margin: 1.5rem 0;
             border-left: 4px solid var(--accent);
         }
@@ -486,14 +511,16 @@
         .constraints-box h3 {
             color: var(--primary);
             margin-bottom: 1rem;
-            font-size: 1em;
+            font-size: 0.95em;
             border: none;
             padding: 0;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .constraint-item {
             padding: 0.5rem 0;
             color: var(--text-dark);
+            font-size: 0.95em;
         }
 
         .constraint-item strong {
@@ -501,10 +528,10 @@
         }
 
         .performance-summary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             padding: 2rem;
-            border-radius: 12px;
+            border-radius: 4px;
             margin-bottom: 1.5rem;
         }
 
@@ -513,6 +540,7 @@
             border: none;
             padding: 0;
             margin: 0 0 1.5rem 0;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .performance-metric {
@@ -528,6 +556,7 @@
 
         .performance-metric-label {
             font-weight: 600;
+            font-size: 0.95em;
         }
 
         .performance-metric-value {
@@ -537,16 +566,17 @@
         }
 
         .yearly-projection {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.08);
             padding: 1.5rem;
-            border-radius: 8px;
+            border-radius: 4px;
             margin-top: 1.5rem;
         }
 
         .yearly-projection h4 {
             color: var(--accent);
             margin-bottom: 1rem;
-            font-size: 0.95em;
+            font-size: 0.9em;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .projection-row {
@@ -558,34 +588,49 @@
         .projection-item {
             background: rgba(255,255,255,0.05);
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: 4px;
             text-align: center;
+            border-left: 3px solid var(--accent);
         }
 
         .projection-item-label {
-            font-size: 0.85em;
+            font-size: 0.8em;
             opacity: 0.8;
             margin-bottom: 0.5rem;
         }
 
         .projection-item-value {
-            font-size: 1.1em;
+            font-size: 1em;
             font-weight: 700;
             color: var(--accent);
         }
 
         .fund-selector {
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
             background: var(--bg-white);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
+            border-radius: 4px;
+            padding: 0;
             margin: 1rem 0;
         }
 
+        .fund-selector-category {
+            background: var(--bg-light);
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+        }
+
         .fund-selector-item {
-            padding: 0.75rem;
+            padding: 0.8rem 1rem;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
@@ -608,12 +653,19 @@
             font-weight: 400;
             cursor: pointer;
             flex: 1;
+            font-size: 0.9em;
+        }
+
+        .fund-perf {
+            font-size: 0.85em;
+            color: var(--accent);
+            font-weight: 600;
         }
 
         .eligibility-note {
             background: #fff5e1;
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: 4px;
             margin-top: 1rem;
             font-size: 0.9em;
             color: #7d4f00;
@@ -623,17 +675,17 @@
         .manual-selection-box {
             background: var(--bg-light);
             padding: 1.5rem;
-            border-radius: 8px;
+            border-radius: 4px;
             margin: 1rem 0;
             border: 2px dashed var(--accent);
         }
 
         .mandatory-fund {
-            background: #fff5e1;
+            background: #fff9f0;
         }
 
         .mandatory-indicator {
-            color: #c9a961;
+            color: var(--accent);
             font-weight: 700;
         }
 
@@ -669,9 +721,10 @@
 
         .performance-badge {
             padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.8em;
+            border-radius: 3px;
+            font-size: 0.75em;
             font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .performance-positive {
@@ -680,8 +733,8 @@
         }
 
         .performance-neutral {
-            background: #e8eef5;
-            color: #2c3e50;
+            background: #f0f0f0;
+            color: #333333;
         }
 
         .performance-negative {
@@ -694,8 +747,8 @@
 
 <nav class="navbar">
     <div class="navbar-content">
-        <div class="logo">ODDO BHF<span class="logo-accent"> Fund Allocation</span></div>
-        <div style="font-size: 0.9em; color: var(--text-gray);">Professional Edition v3.0</div>
+        <div class="logo">ODDO<span class="logo-accent">BHF</span></div>
+        <div style="font-size: 0.85em; color: var(--text-gray);">Fund Allocation v3.1</div>
     </div>
 </nav>
 
@@ -750,7 +803,7 @@
             </div>
 
             <div id="initialManualSelection" class="manual-selection-box" style="display: none;">
-                <h4 style="margin-bottom: 1rem; color: var(--primary);">Sélectionnez les fonds :</h4>
+                <h4 style="margin-bottom: 1rem; color: var(--primary); font-family: 'Montserrat', sans-serif;">Sélectionnez les fonds :</h4>
                 <div id="initialFundSelector" class="fund-selector"></div>
                 <div id="initialEligibilityNote" class="eligibility-note" style="display: none;"></div>
             </div>
@@ -785,7 +838,7 @@
             </div>
 
             <div id="monthlyManualSelection" class="manual-selection-box" style="display: none;">
-                <h4 style="margin-bottom: 1rem; color: var(--primary);">Sélectionnez les fonds :</h4>
+                <h4 style="margin-bottom: 1rem; color: var(--primary); font-family: 'Montserrat', sans-serif;">Sélectionnez les fonds :</h4>
                 <div id="monthlyFundSelector" class="fund-selector"></div>
                 <div id="monthlyEligibilityNote" class="eligibility-note" style="display: none;"></div>
             </div>
@@ -884,12 +937,11 @@
 
     <div class="footer">
         <p><strong>© 2026 ODDO BHF Asset Management</strong></p>
-        <p>Professional Edition v3.0 | Document confidentiel distributeurs</p>
+        <p>Professional Edition v3.1 | Document confidentiel distributeurs</p>
     </div>
 </div>
 
 <script>
-    // (Tous les scripts restent identiques à la version précédente)
     // PROFILE-BASED ALLOCATION CONSTRAINTS
     const profileConstraints = {
         secure: {
@@ -902,7 +954,7 @@
             ],
             mandatory: [
                 { fundId: 'fund-securite-infra', minPercent: 10, label: 'Sécurité Infra Euro (min 10%)' },
-                { fundId: 'fund-securite-euro', minPercent: 10, label: 'Sécurité en Euros (min 10%, when eligible)' }
+                { fundId: 'fund-securite-euro', minPercent: 10, label: 'Sécurité en Euros (min 10%)' }
             ]
         },
         moderate: {
@@ -948,7 +1000,7 @@
         'fipavie-transmission': {
             name: 'Fipavie Transmission',
             immobilier: { 'fund-osmo-valeur': 'max 50%', 'fund-osmo-energie': null, 'fund-allianz-pierre': null },
-            pe: { 'fund-pe-debt-equity-ii': 'min 55% / max 70% (Vie Génération)', 'fund-pe-global': null, 'fund-slp-opportunites': 'max 50%' }
+            pe: { 'fund-pe-debt-equity-ii': 'min 55% / max 70%', 'fund-pe-global': null, 'fund-slp-opportunites': 'max 50%' }
         },
         'per-opportunites': {
             name: 'PER Opportunités',
@@ -962,7 +1014,7 @@
         }
     };
 
-    // COMPREHENSIVE FUNDS DATABASE
+    // COMPREHENSIVE FUNDS DATABASE - ALL FUNDS
     const funds = [
         // MANDATORY FUNDS FOR CONSERVATIVE & MODERATE
         { fundId: 'fund-securite-infra', name: 'ODDO BHF Sécurité Infra Euro', isin: 'LU0876266276', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'MANDATORY', allocation: 0.10, geographicFocus: 'Europe', esgClassification: 'High', performance1Y: 2.85, fundType: 'UCITS', isMandatory: true },
@@ -985,8 +1037,12 @@
         { fundId: 'fund-algo', name: 'ODDO BHF Algo Trend US', isin: 'LU0913291672', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'COUP', allocation: 0.18, geographicFocus: 'North America', esgClassification: 'Medium', performance1Y: 9.12, fundType: 'UCITS' },
         { fundId: 'fund-small', name: 'ODDO BHF Active Small Cap', isin: 'LU0501210403', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'COUP', allocation: 0.16, geographicFocus: 'Europe', esgClassification: 'Medium', performance1Y: 5.89, fundType: 'UCITS' },
         
-        // Additional supporting funds
-        { fundId: 'fund-avenir', name: 'ODDO BHF Avenir Europe', isin: 'LU0212090670', riskLevel: 'Medium', assetClass: 'Equity', assetType: 'Equities', category: 'SUPPORT', allocation: 0.17, geographicFocus: 'Europe', esgClassification: 'High', performance1Y: 6.34, fundType: 'UCITS' },
+        // AVENIR GAMME
+        { fundId: 'fund-avenir-europe', name: 'ODDO BHF Avenir Europe', isin: 'LU0212090670', riskLevel: 'Medium', assetClass: 'Equity', assetType: 'Equities', category: 'SUPPORT', allocation: 0.17, geographicFocus: 'Europe', esgClassification: 'High', performance1Y: 6.34, fundType: 'UCITS' },
+        { fundId: 'fund-avenir-euro', name: 'ODDO BHF Avenir Euro', isin: 'FR0000990095', riskLevel: 'Medium', assetClass: 'Equity', assetType: 'Equities', category: 'SUPPORT', allocation: 0.16, geographicFocus: 'Europe', esgClassification: 'High', performance1Y: 6.10, fundType: 'UCITS' },
+        { fundId: 'fund-avenir', name: 'ODDO BHF Avenir', isin: 'FR0000989899', riskLevel: 'Medium', assetClass: 'Equity', assetType: 'Equities', category: 'SUPPORT', allocation: 0.15, geographicFocus: 'France', esgClassification: 'High', performance1Y: 5.95, fundType: 'UCITS' },
+        
+        // POLARIS GAMME
         { fundId: 'fund-polaris', name: 'ODDO BHF Polaris Balanced', isin: 'LU0789568872', riskLevel: 'Medium', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'SUPPORT', allocation: 0.18, geographicFocus: 'Global', esgClassification: 'High', performance1Y: 4.76, fundType: 'UCITS' },
         { fundId: 'fund-moderate', name: 'ODDO BHF Polaris Moderate', isin: 'LU0789568780', riskLevel: 'Low', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'SUPPORT', allocation: 0.15, geographicFocus: 'Global', esgClassification: 'High', performance1Y: 3.21, fundType: 'UCITS' },
         
@@ -1024,6 +1080,26 @@
         }
     }
 
+    function groupFundsByCategory(fundsList) {
+        const groups = {
+            'UCITS': [],
+            'Immobilier': [],
+            'Private Equity': []
+        };
+
+        fundsList.forEach(fund => {
+            if (fund.assetType === 'Immobilier') {
+                groups['Immobilier'].push(fund);
+            } else if (fund.assetType === 'Private Equity') {
+                groups['Private Equity'].push(fund);
+            } else {
+                groups['UCITS'].push(fund);
+            }
+        });
+
+        return groups;
+    }
+
     function populateFundSelectors() {
         const contractType = document.getElementById('contractType').value;
         const initialProfile = document.getElementById('initialRiskProfile').value;
@@ -1033,24 +1109,48 @@
             const initialContainer = document.getElementById('initialFundSelector');
             const initialFundIds = contracts[contractType].funds[initialProfile] || [];
             const eligibleFunds = funds.filter(f => initialFundIds.includes(f.fundId));
-            initialContainer.innerHTML = eligibleFunds.map(fund => `
-                <div class="fund-selector-item">
-                    <input type="checkbox" id="initial_${fund.fundId}" onchange="updateSelectedInitialFunds()">
-                    <label for="initial_${fund.fundId}"><strong>${fund.name}</strong> (${fund.performance1Y}%)</label>
-                </div>
-            `).join('');
+            const groupedFunds = groupFundsByCategory(eligibleFunds);
+            
+            let html = '';
+            Object.entries(groupedFunds).forEach(([category, fundsList]) => {
+                if (fundsList.length > 0) {
+                    html += `<div class="fund-selector-category">${category}</div>`;
+                    html += fundsList.map(fund => `
+                        <div class="fund-selector-item">
+                            <input type="checkbox" id="initial_${fund.fundId}" onchange="updateSelectedInitialFunds()">
+                            <label for="initial_${fund.fundId}">
+                                <strong>${fund.name}</strong>
+                                <span class="fund-perf">${fund.performance1Y}%</span>
+                            </label>
+                        </div>
+                    `).join('');
+                }
+            });
+            initialContainer.innerHTML = html;
         }
 
         if (monthlyProfile && contractType) {
             const monthlyContainer = document.getElementById('monthlyFundSelector');
             const monthlyFundIds = contracts[contractType].funds[monthlyProfile] || [];
             const eligibleFunds = funds.filter(f => monthlyFundIds.includes(f.fundId));
-            monthlyContainer.innerHTML = eligibleFunds.map(fund => `
-                <div class="fund-selector-item">
-                    <input type="checkbox" id="monthly_${fund.fundId}" onchange="updateSelectedMonthlyFunds()">
-                    <label for="monthly_${fund.fundId}"><strong>${fund.name}</strong> (${fund.performance1Y}%)</label>
-                </div>
-            `).join('');
+            const groupedFunds = groupFundsByCategory(eligibleFunds);
+            
+            let html = '';
+            Object.entries(groupedFunds).forEach(([category, fundsList]) => {
+                if (fundsList.length > 0) {
+                    html += `<div class="fund-selector-category">${category}</div>`;
+                    html += fundsList.map(fund => `
+                        <div class="fund-selector-item">
+                            <input type="checkbox" id="monthly_${fund.fundId}" onchange="updateSelectedMonthlyFunds()">
+                            <label for="monthly_${fund.fundId}">
+                                <strong>${fund.name}</strong>
+                                <span class="fund-perf">${fund.performance1Y}%</span>
+                            </label>
+                        </div>
+                    `).join('');
+                }
+            });
+            monthlyContainer.innerHTML = html;
         }
 
         displayEligibilityNotes(contractType);
@@ -1060,20 +1160,28 @@
         const eligibility = contractEligibility[contractType];
         if (!eligibility) return;
 
-        let immobilierNote = '<strong>Immobilier:</strong> ';
-        let peNote = '<strong>Private Equity:</strong> ';
+        let immobilierNote = '<strong>📍 Immobilier:</strong> ';
+        let peNote = '<strong>💎 Private Equity:</strong> ';
+        let hasImmobilier = false;
+        let hasPE = false;
 
         Object.entries(eligibility.immobilier).forEach(([fundId, rules]) => {
             if (rules) {
                 const fund = funds.find(f => f.fundId === fundId);
-                immobilierNote += `${fund.name} ${rules} | `;
+                if (fund) {
+                    immobilierNote += `${fund.name} (${rules}) | `;
+                    hasImmobilier = true;
+                }
             }
         });
 
         Object.entries(eligibility.pe).forEach(([fundId, rules]) => {
             if (rules) {
                 const fund = funds.find(f => f.fundId === fundId);
-                peNote += `${fund.name} ${rules} | `;
+                if (fund) {
+                    peNote += `${fund.name} (${rules}) | `;
+                    hasPE = true;
+                }
             }
         });
 
@@ -1081,12 +1189,22 @@
         const monthlyNote = document.getElementById('monthlyEligibilityNote');
 
         if (document.getElementById('manualInitial').checked) {
-            initialNote.innerHTML = immobilierNote + '<br>' + peNote;
-            initialNote.style.display = 'block';
+            let noteContent = '';
+            if (hasImmobilier) noteContent += immobilierNote + '<br>';
+            if (hasPE) noteContent += peNote;
+            if (noteContent) {
+                initialNote.innerHTML = noteContent;
+                initialNote.style.display = 'block';
+            }
         }
         if (document.getElementById('manualMonthly').checked) {
-            monthlyNote.innerHTML = immobilierNote + '<br>' + peNote;
-            monthlyNote.style.display = 'block';
+            let noteContent = '';
+            if (hasImmobilier) noteContent += immobilierNote + '<br>';
+            if (hasPE) noteContent += peNote;
+            if (noteContent) {
+                monthlyNote.innerHTML = noteContent;
+                monthlyNote.style.display = 'block';
+            }
         }
     }
 
@@ -1139,7 +1257,7 @@
             mandatoryTitle.className = 'constraint-item';
             mandatoryTitle.style.marginTop = '1rem';
             mandatoryTitle.style.fontWeight = '700';
-            mandatoryTitle.style.color = '#c9a961';
+            mandatoryTitle.style.color = 'var(--accent)';
             mandatoryTitle.innerHTML = '🔒 Allocations Obligatoires:';
             constraintsList.appendChild(mandatoryTitle);
 
@@ -1147,7 +1265,7 @@
                 const item = document.createElement('div');
                 item.className = 'constraint-item';
                 item.style.marginLeft = '1rem';
-                item.innerHTML = `<strong style="color: #c9a961;">→ ${mandatory.label}</strong>`;
+                item.innerHTML = `<strong style="color: var(--accent);">→ ${mandatory.label}</strong>`;
                 constraintsList.appendChild(item);
             });
         }
@@ -1171,8 +1289,8 @@
             case 'COUP': return '<span class="recommendation-badge badge-coup">❤️ Coup</span>';
             case 'IMMOBILIER': return '<span class="recommendation-badge badge-immobilier">🏠 Immobilier</span>';
             case 'PE': return '<span class="recommendation-badge badge-pe">💎 PE</span>';
-            case 'MANDATORY': return '<span class="recommendation-badge" style="background: #fff5e1; color: #c9a961;">🔒 Obligatoire</span>';
-            default: return '<span class="recommendation-badge" style="background: #f0f6ff; color: #0066cc;">📌 Support</span>';
+            case 'MANDATORY': return '<span class="recommendation-badge" style="background: #fff9f0; color: var(--accent);">🔒 Obligatoire</span>';
+            default: return '<span class="recommendation-badge" style="background: #f0f0f0; color: #333333;">📌 Support</span>';
         }
     }
 
@@ -1403,21 +1521,21 @@
 
             row.innerHTML = `
                 <td>${mandatoryIndicator}${fund.name}</td>
-                <td><code style="background: #f0f6ff; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.85em; color: #0066cc;">${fund.isin}</code></td>
+                <td><code style="background: #f0f0f0; padding: 0.3rem 0.6rem; border-radius: 3px; font-size: 0.8em; color: #666666;">${fund.isin}</code></td>
                 <td>€${fund.calculatedAmount.toLocaleString('fr-FR')}</td>
                 <td><strong>${fund.percentage.toFixed(1)}%</strong></td>
                 <td><span class="badge ${riskClass}">${fund.riskLevel}</span></td>
                 <td><span class="geo-badge">${fund.geographicFocus}</span></td>
                 <td><span class="esg-badge ${esgClass}">${fund.esgClassification}</span></td>
                 <td><span class="performance-badge ${performanceClass}"><strong>${formatPerformance(fund.performance1Y)}</strong></span></td>
-                <td><span class="badge" style="background: #f0f6ff; color: #0066cc;">${fund.fundType}</span></td>
+                <td><span class="badge" style="background: #f0f0f0; color: #333333;">${fund.fundType}</span></td>
                 <td>${getCategoryBadge(fund.category)}</td>
             `;
             tbody.appendChild(row);
         });
 
         const totalRow = document.createElement('tr');
-        totalRow.style.background = '#f0f6ff';
+        totalRow.style.background = '#f9f9f9';
         totalRow.style.fontWeight = '600';
         totalRow.style.borderTop = '2px solid var(--primary)';
         const totalPercent = allocations.reduce((sum, f) => sum + f.percentage, 0);
