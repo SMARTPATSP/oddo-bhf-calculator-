@@ -12,13 +12,16 @@
         .header h1 { font-size: 2.5em; color: #333; }
         .header p { color: #666; margin-top: 10px; }
         .content { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        @media (max-width: 1000px) { .content { grid-template-columns: 1fr; } }
+        @media (max-width: 1200px) { .content { grid-template-columns: 1fr; } }
         .section { background: #f8f9fa; padding: 30px; border-radius: 8px; border-left: 4px solid #667eea; }
         .section h2 { color: #333; margin-bottom: 20px; font-size: 1.3em; }
+        .section h3 { color: #555; margin-bottom: 15px; margin-top: 20px; font-size: 1.1em; border-bottom: 2px solid #ddd; padding-bottom: 8px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
         .form-group select, .form-group input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 1em; }
         .form-group select:focus, .form-group input:focus { border-color: #667eea; outline: none; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
         button { padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; font-size: 1em; }
         .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3); }
@@ -33,11 +36,11 @@
         .badge-medium { background: #fff3cd; color: #856404; }
         .badge-high { background: #f8d7da; color: #721c24; }
         .badge-very-high { background: #e2616c; color: white; }
-        .badge-tag { background: #e7f3ff; color: #0066cc; padding: 3px 6px; font-size: 0.75em; }
         .message { padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; font-weight: bold; }
         .message.show { display: block; }
         .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message.warning { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
         .table-section { display: none; margin-top: 30px; }
         .table-section.active { display: block; }
         .table-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; font-weight: bold; margin-bottom: 0; border-radius: 6px 6px 0 0; }
@@ -63,6 +66,11 @@
         .esg-medium { background: #fff3cd; color: #856404; }
         .esg-low { background: #f8d7da; color: #721c24; }
         .geo-badge { background: #e7f3ff; color: #0066cc; padding: 3px 6px; border-radius: 3px; font-size: 0.75em; }
+        .mandatory-fund { background: #fff8dc; border-left: 3px solid #ff6b6b; }
+        .mandatory-indicator { color: #ff6b6b; font-weight: bold; }
+        .profile-tag { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 0.75em; margin-left: 5px; }
+        .profile-initial { background: #e3f2fd; color: #1976d2; }
+        .profile-monthly { background: #f3e5f5; color: #7b1fa2; }
     </style>
 </head>
 <body>
@@ -92,32 +100,51 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label>Risk Profile *</label>
-                <select id="riskProfile" onchange="updateConstraints()">
-                    <option value="">-- Select Profile --</option>
-                    <option value="secure">🛡️ Secure (Conservative)</option>
-                    <option value="moderate">⚖️ Moderate (Balanced)</option>
-                    <option value="dynamic">📈 Dynamic (Aggressive)</option>
-                </select>
+            <h3>💰 Initial Funding (€)</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Amount *</label>
+                    <input type="number" id="initialFunding" min="1500" step="100" placeholder="Minimum: €1,500" />
+                </div>
+                <div class="form-group">
+                    <label>Risk Profile *</label>
+                    <select id="initialRiskProfile" onchange="updateInitialConstraints()">
+                        <option value="">-- Select Profile --</option>
+                        <option value="secure">🛡️ Conservative</option>
+                        <option value="moderate">⚖️ Balanced</option>
+                        <option value="dynamic">📈 Aggressive</option>
+                    </select>
+                </div>
             </div>
 
-            <div id="constraintsBox" class="constraints-box" style="display: none;">
-                <h3>✅ Allocation Constraints</h3>
-                <div id="constraintsList"></div>
+            <div id="initialConstraintsBox" class="constraints-box" style="display: none;">
+                <h3>✅ Initial Constraints</h3>
+                <div id="initialConstraintsList"></div>
             </div>
 
-            <div class="form-group">
-                <label>Initial Funding (€) *</label>
-                <input type="number" id="initialFunding" min="1500" step="100" placeholder="Minimum: €1,500" />
+            <h3>📊 Monthly Funding (€)</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Amount *</label>
+                    <input type="number" id="monthlyFunding" min="150" step="50" placeholder="Minimum: €150" />
+                </div>
+                <div class="form-group">
+                    <label>Risk Profile *</label>
+                    <select id="monthlyRiskProfile" onchange="updateMonthlyConstraints()">
+                        <option value="">-- Select Profile --</option>
+                        <option value="secure">🛡️ Conservative</option>
+                        <option value="moderate">⚖️ Balanced</option>
+                        <option value="dynamic">📈 Aggressive</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Monthly Funding (€) *</label>
-                <input type="number" id="monthlyFunding" min="150" step="50" placeholder="Minimum: €150" />
+            <div id="monthlyConstraintsBox" class="constraints-box" style="display: none;">
+                <h3>✅ Monthly Constraints</h3>
+                <div id="monthlyConstraintsList"></div>
             </div>
 
-            <button class="btn-primary" onclick="calculate()">📊 Calculate</button>
+            <button class="btn-primary" onclick="calculate()">📊 Calculate Allocation</button>
             <button class="btn-secondary" onclick="reset()">🔄 Reset</button>
         </div>
 
@@ -129,16 +156,14 @@
                     <span class="result-value" id="summaryContract">-</span>
                 </div>
                 <div class="result-row">
-                    <span class="result-label">Profile:</span>
-                    <span class="result-value" id="summaryProfile">-</span>
-                </div>
-                <div class="result-row">
                     <span class="result-label">Initial Funding:</span>
                     <span class="result-value" id="summaryInitial">-</span>
+                    <span class="profile-tag profile-initial" id="summaryInitialProfile"></span>
                 </div>
                 <div class="result-row">
                     <span class="result-label">Monthly Funding:</span>
                     <span class="result-value" id="summaryMonthly">-</span>
+                    <span class="profile-tag profile-monthly" id="summaryMonthlyProfile"></span>
                 </div>
             </div>
             <button class="btn-success" onclick="savePortfolio()">💾 Save Portfolio</button>
@@ -191,7 +216,7 @@
     </div>
 
     <div class="footer">
-        <p>© 2026 ODDO BHF Asset Management | Professional Edition v2.0</p>
+        <p>© 2026 ODDO BHF Asset Management | Professional Edition v2.1</p>
         <p>For Professional Use Only | Document confidentiel distributeurs</p>
     </div>
 </div>
@@ -206,6 +231,10 @@
                 { type: 'Equities', max: 20, min: 10 },
                 { type: 'Mixed Assets', max: 15, min: 5 },
                 { type: 'Alternatives', max: 5, min: 0 }
+            ],
+            mandatory: [
+                { fundId: 'fund-securite-infra', minPercent: 10, label: 'Sécurité Infra Euro (min 10%)' },
+                { fundId: 'fund-securite-euro', minPercent: 10, label: 'Sécurité en Euros (min 10%, when eligible)' }
             ]
         },
         moderate: {
@@ -215,6 +244,9 @@
                 { type: 'Equities', max: 50, min: 40 },
                 { type: 'Mixed Assets', max: 10, min: 5 },
                 { type: 'Alternatives', max: 5, min: 0 }
+            ],
+            mandatory: [
+                { fundId: 'fund-securite-infra', minPercent: 10, label: 'Sécurité Infra Euro (min 10%)' }
             ]
         },
         dynamic: {
@@ -223,12 +255,17 @@
                 { type: 'Equities', max: 100, min: 80 },
                 { type: 'Fixed Income', max: 20, min: 0 },
                 { type: 'Alternatives', max: 10, min: 0 }
-            ]
+            ],
+            mandatory: []
         }
     };
 
     // ODDO BHF Recommended Funds - Enhanced with ISIN, Geographic Focus, ESG
     const funds = [
+        // MANDATORY FUNDS FOR CONSERVATIVE & MODERATE
+        { fundId: 'fund-securite-infra', name: 'ODDO BHF Sécurité Infra Euro', isin: 'LU0876266276', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'MANDATORY', allocation: 0.10, geographicFocus: 'Europe', esgClassification: 'High', isMandatory: true },
+        { fundId: 'fund-securite-euro', name: 'ODDO BHF Sécurité en Euros', isin: 'LU0268403865', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'MANDATORY', allocation: 0.10, geographicFocus: 'Europe', esgClassification: 'High', isMandatory: true },
+        
         // INCONTOURNABLE - Essential
         { fundId: 'fund-nav', name: 'ODDO BHF Global Navigator', isin: 'LU0568438842', riskLevel: 'Medium', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'INCONTOURNABLE', allocation: 0.25, geographicFocus: 'Global', esgClassification: 'High' },
         { fundId: 'fund-ia', name: 'ODDO BHF Artificial Intelligence', isin: 'LU1803984285', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'INCONTOURNABLE', allocation: 0.20, geographicFocus: 'Global', esgClassification: 'High' },
@@ -253,11 +290,11 @@
     ];
 
     const contracts = {
-        'fipavie-ingenierie': { name: 'Fipavie Ingénierie', funds: { secure: ['fund-nav', 'fund-target', 'fund-credit', 'fund-moderate', 'fund-polaris'], moderate: ['fund-nav', 'fund-metro', 'fund-avenir', 'fund-polaris', 'fund-target'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-metro', 'fund-china'] } },
-        'fipavie-opportunites': { name: 'Fipavie Opportunités', funds: { secure: ['fund-credit', 'fund-target', 'fund-moderate', 'fund-nav'], moderate: ['fund-metro', 'fund-avenir', 'fund-polaris', 'fund-nav', 'fund-credit'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-china', 'fund-small'] } },
-        'fipavie-expertises': { name: 'Fipavie Expertises', funds: { secure: ['fund-credit', 'fund-target', 'fund-moderate'], moderate: ['fund-metro', 'fund-polaris', 'fund-nav', 'fund-avenir'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-china'] } },
-        'per-opportunites': { name: 'PER Opportunités', funds: { secure: ['fund-credit', 'fund-target', 'fund-moderate'], moderate: ['fund-metro', 'fund-polaris', 'fund-nav'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small'] } },
-        'premavenir-per': { name: 'Premavenir PER', funds: { secure: ['fund-credit', 'fund-moderate'], moderate: ['fund-metro', 'fund-polaris'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo'] } }
+        'fipavie-ingenierie': { name: 'Fipavie Ingénierie', funds: { secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-nav', 'fund-target', 'fund-credit', 'fund-moderate', 'fund-polaris'], moderate: ['fund-securite-infra', 'fund-nav', 'fund-metro', 'fund-avenir', 'fund-polaris', 'fund-target'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-metro', 'fund-china'] } },
+        'fipavie-opportunites': { name: 'Fipavie Opportunités', funds: { secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-credit', 'fund-target', 'fund-moderate', 'fund-nav'], moderate: ['fund-securite-infra', 'fund-metro', 'fund-avenir', 'fund-polaris', 'fund-nav', 'fund-credit'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-china', 'fund-small'] } },
+        'fipavie-expertises': { name: 'Fipavie Expertises', funds: { secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-credit', 'fund-target', 'fund-moderate'], moderate: ['fund-securite-infra', 'fund-metro', 'fund-polaris', 'fund-nav', 'fund-avenir'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-china'] } },
+        'per-opportunites': { name: 'PER Opportunités', funds: { secure: ['fund-securite-infra', 'fund-securite-euro', 'fund-credit', 'fund-target', 'fund-moderate'], moderate: ['fund-securite-infra', 'fund-metro', 'fund-polaris', 'fund-nav'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small'] } },
+        'premavenir-per': { name: 'Premavenir PER', funds: { secure: ['fund-securite-infra', 'fund-credit', 'fund-moderate'], moderate: ['fund-securite-infra', 'fund-metro', 'fund-polaris'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo'] } }
     };
 
     let currentAllocation = null;
@@ -266,27 +303,55 @@
         console.log('Contract selected');
     }
 
-    function updateConstraints() {
-        const profile = document.getElementById('riskProfile').value;
-        const constraintsBox = document.getElementById('constraintsBox');
-        const constraintsList = document.getElementById('constraintsList');
+    function displayConstraints(profileType, constraintListId) {
+        const profile = profileType === 'initial' ? document.getElementById('initialRiskProfile').value : document.getElementById('monthlyRiskProfile').value;
+        const constraintsBox = document.getElementById(profileType === 'initial' ? 'initialConstraintsBox' : 'monthlyConstraintsBox');
+        const constraintsList = document.getElementById(constraintListId);
 
         if (!profile) {
             constraintsBox.style.display = 'none';
             return;
         }
 
-        const constraints = profileConstraints[profile].constraints;
+        const constraints = profileConstraints[profile];
         constraintsList.innerHTML = '';
 
-        constraints.forEach(constraint => {
+        // Display asset class constraints
+        constraints.constraints.forEach(constraint => {
             const item = document.createElement('div');
             item.className = 'constraint-item';
             item.innerHTML = `<strong>${constraint.type}:</strong> Min ${constraint.min}% - Max ${constraint.max}%`;
             constraintsList.appendChild(item);
         });
 
+        // Display mandatory funds
+        if (constraints.mandatory.length > 0) {
+            const mandatoryTitle = document.createElement('div');
+            mandatoryTitle.className = 'constraint-item';
+            mandatoryTitle.style.marginTop = '10px';
+            mandatoryTitle.style.fontWeight = 'bold';
+            mandatoryTitle.style.color = '#ff6b6b';
+            mandatoryTitle.innerHTML = '🔒 Mandatory Allocations:';
+            constraintsList.appendChild(mandatoryTitle);
+
+            constraints.mandatory.forEach(mandatory => {
+                const item = document.createElement('div');
+                item.className = 'constraint-item';
+                item.style.marginLeft = '10px';
+                item.innerHTML = `<strong style="color: #ff6b6b;">→ ${mandatory.label}</strong>`;
+                constraintsList.appendChild(item);
+            });
+        }
+
         constraintsBox.style.display = 'block';
+    }
+
+    function updateInitialConstraints() {
+        displayConstraints('initial', 'initialConstraintsList');
+    }
+
+    function updateMonthlyConstraints() {
+        displayConstraints('monthly', 'monthlyConstraintsList');
     }
 
     function getCategoryBadge(category) {
@@ -295,6 +360,7 @@
             case 'STRATEGIQUE': return '<span class="recommendation-badge badge-strategique">📊 Stratégique</span>';
             case 'PORTAGE': return '<span class="recommendation-badge badge-portage">💰 Portage</span>';
             case 'COUP': return '<span class="recommendation-badge badge-coup">❤️ Coup de cœur</span>';
+            case 'MANDATORY': return '<span class="recommendation-badge" style="background: #ff6b6b; color: white;">🔒 Mandatory</span>';
             default: return '<span class="recommendation-badge" style="background: #ddd; color: #333;">📌 Support</span>';
         }
     }
@@ -320,24 +386,28 @@
 
     function calculate() {
         const contractId = document.getElementById('contractType').value;
-        const profile = document.getElementById('riskProfile').value;
+        const initialProfile = document.getElementById('initialRiskProfile').value;
+        const monthlyProfile = document.getElementById('monthlyRiskProfile').value;
         const initialFunding = parseFloat(document.getElementById('initialFunding').value);
         const monthlyFunding = parseFloat(document.getElementById('monthlyFunding').value);
 
-        if (!contractId || !profile || isNaN(initialFunding) || initialFunding < 1500 || isNaN(monthlyFunding) || monthlyFunding < 150) {
+        if (!contractId || !initialProfile || !monthlyProfile || isNaN(initialFunding) || initialFunding < 1500 || isNaN(monthlyFunding) || monthlyFunding < 150) {
             showMsg('❌ Please fill all fields with valid values', 'error');
             return;
         }
 
         const contract = contracts[contractId];
-        const fundIds = contract.funds[profile];
-        const selectedFunds = funds.filter(f => fundIds.includes(f.fundId));
-
-        // Initial allocation: 5-10 funds respecting constraints
-        const initialAllocation = allocateFundsWithConstraints(selectedFunds, initialFunding, profile, 5, 10);
         
-        // Monthly allocation: 3+ funds, min €50/fund respecting constraints
-        const monthlyAllocation = allocateFundsWithConstraints(selectedFunds, monthlyFunding, profile, 3, selectedFunds.length, 50);
+        // Get funds for each profile
+        const initialFundIds = contract.funds[initialProfile];
+        const monthlyFundIds = contract.funds[monthlyProfile];
+        
+        const initialSelectedFunds = funds.filter(f => initialFundIds.includes(f.fundId));
+        const monthlySelectedFunds = funds.filter(f => monthlyFundIds.includes(f.fundId));
+
+        // Calculate allocations with mandatory constraints
+        const initialAllocation = allocateFundsWithConstraints(initialSelectedFunds, initialFunding, initialProfile, 5, 10);
+        const monthlyAllocation = allocateFundsWithConstraints(monthlySelectedFunds, monthlyFunding, monthlyProfile, 3, monthlySelectedFunds.length, 50);
 
         if (!initialAllocation || !monthlyAllocation) {
             showMsg('❌ Unable to allocate funds while respecting profile constraints', 'error');
@@ -346,25 +416,47 @@
 
         currentAllocation = {
             contractId,
-            profile,
+            initialProfile,
+            monthlyProfile,
             initialFunding,
             monthlyFunding,
             initialAllocation,
             monthlyAllocation
         };
 
-        displayResults(contract, profile, initialFunding, monthlyFunding, initialAllocation, monthlyAllocation);
-        showMsg('✅ Allocation calculated successfully respecting profile constraints!', 'success');
+        displayResults(contract, initialProfile, monthlyProfile, initialFunding, monthlyFunding, initialAllocation, monthlyAllocation);
+        showMsg('✅ Allocation calculated successfully respecting all constraints!', 'success');
     }
 
     function allocateFundsWithConstraints(fundsList, totalAmount, profile, minFunds, maxFunds, minPerFund = 50) {
         let allocations = [];
+        const constraints = profileConstraints[profile];
+        const mandatoryFunds = constraints.mandatory;
         
-        const numFunds = Math.min(maxFunds, Math.max(minFunds, Math.ceil(fundsList.length / 2)));
-        const selectedFundsList = fundsList.slice(0, numFunds);
+        // First, allocate mandatory funds
+        const mandatoryAllocations = [];
+        let remainingAmount = totalAmount;
         
-        // Calculate base allocation
-        const amountPerFund = Math.floor(totalAmount / selectedFundsList.length / 50) * 50;
+        mandatoryFunds.forEach(mandatory => {
+            const fundData = fundsList.find(f => f.fundId === mandatory.fundId);
+            if (fundData) {
+                const mandatoryAmount = Math.floor((mandatory.minPercent / 100) * totalAmount);
+                mandatoryAllocations.push({
+                    ...fundData,
+                    calculatedAmount: mandatoryAmount,
+                    percentage: mandatory.minPercent,
+                    isMandatory: true
+                });
+                remainingAmount -= mandatoryAmount;
+            }
+        });
+
+        // Then allocate remaining funds
+        const nonMandatoryFunds = fundsList.filter(f => !mandatoryFunds.some(m => m.fundId === f.fundId));
+        const numFunds = Math.min(maxFunds, Math.max(minFunds, Math.ceil(nonMandatoryFunds.length / 2)));
+        const selectedFundsList = nonMandatoryFunds.slice(0, numFunds - mandatoryAllocations.length);
+        
+        const amountPerFund = Math.floor(remainingAmount / selectedFundsList.length / 50) * 50;
         
         selectedFundsList.forEach(fund => {
             if (amountPerFund >= minPerFund) {
@@ -375,48 +467,34 @@
             }
         });
 
-        // Handle remainder
-        const totalAllocated = allocations.reduce((a, b) => a + b.calculatedAmount, 0);
+        const totalAllocated = allocations.reduce((a, b) => a + b.calculatedAmount, 0) + mandatoryAllocations.reduce((a, b) => a + b.calculatedAmount, 0);
         const remainder = totalAmount - totalAllocated;
         
         if (remainder >= minPerFund && allocations.length > 0) {
             allocations[0].calculatedAmount += remainder;
+        } else if (remainder >= minPerFund && mandatoryAllocations.length > 0) {
+            mandatoryAllocations[0].calculatedAmount += remainder;
         }
 
-        // Add percentages
-        allocations = allocations.map(alloc => ({
+        // Combine all allocations
+        const allAllocations = [...mandatoryAllocations, ...allocations];
+        
+        // Calculate percentages
+        const allAllocationsWithPercentages = allAllocations.map(alloc => ({
             ...alloc,
             percentage: (alloc.calculatedAmount / totalAmount) * 100
         }));
 
-        // Verify constraints compliance
-        const constraints = profileConstraints[profile].constraints;
-        let constraintsMet = true;
-        let warningMsg = '';
-
-        constraints.forEach(constraint => {
-            const relevantFunds = allocations.filter(f => f.assetType === constraint.type);
-            const totalPercent = relevantFunds.reduce((sum, f) => sum + f.percentage, 0);
-            
-            if (totalPercent > constraint.max) {
-                constraintsMet = false;
-                warningMsg += `⚠️ ${constraint.type}: ${totalPercent.toFixed(1)}% (exceeds max ${constraint.max}%)\n`;
-            }
-        });
-
-        if (!constraintsMet) {
-            console.warn('Constraint warnings:\n' + warningMsg);
-        }
-
-        return allocations;
+        return allAllocationsWithPercentages;
     }
 
-    function displayResults(contract, profile, initialFunding, monthlyFunding, initialAllocation, monthlyAllocation) {
+    function displayResults(contract, initialProfile, monthlyProfile, initialFunding, monthlyFunding, initialAllocation, monthlyAllocation) {
         document.getElementById('resultsSection').style.display = 'block';
         document.getElementById('summaryContract').textContent = contract.name;
-        document.getElementById('summaryProfile').textContent = profileConstraints[profile].name;
         document.getElementById('summaryInitial').textContent = `€${initialFunding.toLocaleString('de-DE')}`;
+        document.getElementById('summaryInitialProfile').textContent = profileConstraints[initialProfile].name;
         document.getElementById('summaryMonthly').textContent = `€${monthlyFunding.toLocaleString('de-DE')}`;
+        document.getElementById('summaryMonthlyProfile').textContent = profileConstraints[monthlyProfile].name;
 
         displayTable('initialBody', initialAllocation, initialFunding);
         displayTable('monthlyBody', monthlyAllocation, monthlyFunding);
@@ -431,11 +509,16 @@
 
         allocations.forEach(fund => {
             const row = document.createElement('tr');
+            if (fund.isMandatory) {
+                row.className = 'mandatory-fund';
+            }
             const riskClass = getRiskBadgeClass(fund.riskLevel);
             const esgClass = getESGBadgeClass(fund.esgClassification);
 
+            const mandatoryIndicator = fund.isMandatory ? '<span class="mandatory-indicator">🔒</span> ' : '';
+
             row.innerHTML = `
-                <td>${fund.name}</td>
+                <td>${mandatoryIndicator}${fund.name}</td>
                 <td><code style="background: #f0f0f0; padding: 2px 4px; border-radius: 3px; font-size: 0.85em;">${fund.isin}</code></td>
                 <td>€${fund.calculatedAmount.toLocaleString('de-DE')}</td>
                 <td><strong>${fund.percentage.toFixed(1)}%</strong></td>
@@ -479,19 +562,22 @@
 
         let csv = 'ODDO BHF Fund Allocation Report\n';
         csv += `Generated: ${new Date().toLocaleDateString()}\n`;
-        csv += `Profile: ${profileConstraints[currentAllocation.profile].name}\n`;
         csv += `Contract: ${contracts[currentAllocation.contractId].name}\n\n`;
 
         csv += 'INITIAL ALLOCATION\n';
-        csv += 'Fund Name,ISIN,Amount (€),Percentage (%),Risk Level,Geographic Focus,ESG Classification,Category\n';
+        csv += `Profile: ${profileConstraints[currentAllocation.initialProfile].name}\n`;
+        csv += `Total Amount: €${currentAllocation.initialFunding.toLocaleString('de-DE')}\n\n`;
+        csv += 'Fund Name,ISIN,Amount (€),Percentage (%),Risk Level,Geographic Focus,ESG Classification,Category,Mandatory\n';
         currentAllocation.initialAllocation.forEach(fund => {
-            csv += `"${fund.name}","${fund.isin}",${fund.calculatedAmount},${fund.percentage.toFixed(1)},${fund.riskLevel},"${fund.geographicFocus}","${fund.esgClassification}","${fund.category}"\n`;
+            csv += `"${fund.name}","${fund.isin}",${fund.calculatedAmount},${fund.percentage.toFixed(1)},${fund.riskLevel},"${fund.geographicFocus}","${fund.esgClassification}","${fund.category}","${fund.isMandatory ? 'YES' : 'NO'}"\n`;
         });
 
         csv += '\nMONTHLY ALLOCATION\n';
-        csv += 'Fund Name,ISIN,Amount (€),Percentage (%),Risk Level,Geographic Focus,ESG Classification,Category\n';
+        csv += `Profile: ${profileConstraints[currentAllocation.monthlyProfile].name}\n`;
+        csv += `Total Amount: €${currentAllocation.monthlyFunding.toLocaleString('de-DE')}\n\n`;
+        csv += 'Fund Name,ISIN,Amount (€),Percentage (%),Risk Level,Geographic Focus,ESG Classification,Category,Mandatory\n';
         currentAllocation.monthlyAllocation.forEach(fund => {
-            csv += `"${fund.name}","${fund.isin}",${fund.calculatedAmount},${fund.percentage.toFixed(1)},${fund.riskLevel},"${fund.geographicFocus}","${fund.esgClassification}","${fund.category}"\n`;
+            csv += `"${fund.name}","${fund.isin}",${fund.calculatedAmount},${fund.percentage.toFixed(1)},${fund.riskLevel},"${fund.geographicFocus}","${fund.esgClassification}","${fund.category}","${fund.isMandatory ? 'YES' : 'NO'}"\n`;
         });
 
         const element = document.createElement('a');
@@ -507,11 +593,13 @@
 
     function reset() {
         document.getElementById('contractType').value = '';
-        document.getElementById('riskProfile').value = '';
+        document.getElementById('initialRiskProfile').value = '';
+        document.getElementById('monthlyRiskProfile').value = '';
         document.getElementById('initialFunding').value = '';
         document.getElementById('monthlyFunding').value = '';
         document.getElementById('resultsSection').style.display = 'none';
-        document.getElementById('constraintsBox').style.display = 'none';
+        document.getElementById('initialConstraintsBox').style.display = 'none';
+        document.getElementById('monthlyConstraintsBox').style.display = 'none';
         document.getElementById('initialTableSection').classList.remove('active');
         document.getElementById('monthlyTableSection').classList.remove('active');
         currentAllocation = null;
