@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -469,11 +469,6 @@
             color: #4a4a4a;
         }
 
-        .badge-esg {
-            background: #e6f7e6;
-            color: #27ae60;
-        }
-
         .esg-badge {
             padding: 0.4rem 0.8rem;
             border-radius: 3px;
@@ -645,10 +640,18 @@
             background: #fff5e1;
             padding: 1rem;
             border-radius: 4px;
-            margin-top: 1rem;
+            margin: 1.5rem 0 1rem 0;
             font-size: 0.9em;
             color: #7d4f00;
             border-left: 4px solid var(--accent);
+        }
+
+        .eligibility-note.show {
+            display: block;
+        }
+
+        .eligibility-note.hide {
+            display: none;
         }
 
         .manual-selection-box {
@@ -747,7 +750,7 @@
 <nav class="navbar">
     <div class="navbar-content">
         <div class="logo">ODDO<span class="logo-accent">BHF</span></div>
-        <div style="font-size: 0.85em; color: var(--text-gray);">Fund Allocation v3.4 GREEN PLANET</div>
+        <div style="font-size: 0.85em; color: var(--text-gray);">Fund Allocation v3.5 OPTIMIZED</div>
     </div>
 </nav>
 
@@ -801,42 +804,72 @@
                 </div>
             </div>
 
-            <div id="initialManualSelection" class="manual-selection-box" style="display: none;">
-                <h4 style="margin-bottom: 1rem; color: var(--primary); font-family: 'Montserrat', sans-serif;">Sélectionnez les fonds (minimum 5) : <span class="fund-count" id="initialFundCount">0 sélectionnés</span></h4>
-                <div id="initialFundSelector" class="fund-selector"></div>
-                <div id="initialEligibilityNote" class="eligibility-note" style="display: none;"></div>
-                <div id="initialSelectionError" class="validation-error"></div>
+            <div id="manualSelectionsContainer" style="display: none;">
+                <!-- NOTE D'ÉLIGIBILITÉ - UNIQUE POUR LES 2 SECTIONS -->
+                <div id="eligibilityNote" class="eligibility-note hide"></div>
+
+                <div id="initialManualSelection" class="manual-selection-box">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary); font-family: 'Montserrat', sans-serif;">Versement Initial - Sélectionnez les fonds (minimum 5) : <span class="fund-count" id="initialFundCount">0 sélectionnés</span></h4>
+                    <div id="initialFundSelector" class="fund-selector"></div>
+                    <div id="initialSelectionError" class="validation-error"></div>
+                </div>
+
+                <h3>📊 Versement Mensuel (€)</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Montant *</label>
+                        <input type="number" id="monthlyFunding" min="150" step="50" placeholder="Min: €150" />
+                    </div>
+                    <div class="form-group">
+                        <label>Profil de Risque *</label>
+                        <select id="monthlyRiskProfile" onchange="updateMonthlyConstraints()">
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="secure">🛡️ Prudent (4-5%)</option>
+                            <option value="moderate">⚖️ Équilibré (7-8%)</option>
+                            <option value="dynamic">📈 Dynamique (+10%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="manualMonthly" onchange="toggleMonthlyManualSelection()" checked>
+                        <label for="manualMonthly">Sélection manuelle des fonds pour versement mensuel (min 3 fonds)</label>
+                    </div>
+                </div>
+
+                <div id="monthlyManualSelection" class="manual-selection-box">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary); font-family: 'Montserrat', sans-serif;">Versement Mensuel - Sélectionnez les fonds (minimum 3) : <span class="fund-count" id="monthlyFundCount">0 sélectionnés</span></h4>
+                    <div id="monthlyFundSelector" class="fund-selector"></div>
+                    <div id="monthlySelectionError" class="validation-error"></div>
+                </div>
             </div>
 
-            <h3>📊 Versement Mensuel (€)</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Montant *</label>
-                    <input type="number" id="monthlyFunding" min="150" step="50" placeholder="Min: €150" />
+            <!-- VERSIONS NON-MANUELLES -->
+            <div id="autoSelectionsContainer">
+                <h3>📊 Versement Mensuel (€)</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Montant *</label>
+                        <input type="number" id="monthlyFunding" min="150" step="50" placeholder="Min: €150" />
+                    </div>
+                    <div class="form-group">
+                        <label>Profil de Risque *</label>
+                        <select id="monthlyRiskProfile" onchange="updateMonthlyConstraints()">
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="secure">🛡️ Prudent (4-5%)</option>
+                            <option value="moderate">⚖️ Équilibré (7-8%)</option>
+                            <option value="dynamic">📈 Dynamique (+10%)</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Profil de Risque *</label>
-                    <select id="monthlyRiskProfile" onchange="updateMonthlyConstraints()">
-                        <option value="">-- Sélectionnez --</option>
-                        <option value="secure">🛡️ Prudent (4-5%)</option>
-                        <option value="moderate">⚖️ Équilibré (7-8%)</option>
-                        <option value="dynamic">📈 Dynamique (+10%)</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="checkbox-group">
-                <div class="checkbox-item">
-                    <input type="checkbox" id="manualMonthly" onchange="toggleMonthlyManualSelection()">
-                    <label for="manualMonthly">Sélection manuelle des fonds pour versement mensuel (min 3 fonds)</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="manualMonthly" onchange="toggleMonthlyManualSelection()">
+                        <label for="manualMonthly">Sélection manuelle des fonds pour versement mensuel (min 3 fonds)</label>
+                    </div>
                 </div>
-            </div>
-
-            <div id="monthlyManualSelection" class="manual-selection-box" style="display: none;">
-                <h4 style="margin-bottom: 1rem; color: var(--primary); font-family: 'Montserrat', sans-serif;">Sélectionnez les fonds (minimum 3) : <span class="fund-count" id="monthlyFundCount">0 sélectionnés</span></h4>
-                <div id="monthlyFundSelector" class="fund-selector"></div>
-                <div id="monthlyEligibilityNote" class="eligibility-note" style="display: none;"></div>
-                <div id="monthlySelectionError" class="validation-error"></div>
             </div>
 
             <div class="button-group">
@@ -928,7 +961,7 @@
 
     <div class="footer">
         <p><strong>© 2026 ODDO BHF Asset Management</strong></p>
-        <p>Professional Edition v3.4 | Document confidentiel distributeurs</p>
+        <p>Professional Edition v3.5 | Document confidentiel distributeurs</p>
     </div>
 </div>
 
@@ -1012,7 +1045,7 @@
         }
     };
 
-    // ✅ v3.4 - COMPREHENSIVE FUNDS DATABASE WITH GREEN PLANET
+    // ✅ v3.5 - COMPREHENSIVE FUNDS DATABASE WITH GREEN PLANET
     const funds = [
         // MANDATORY FUNDS FOR CONSERVATIVE & MODERATE
         { fundId: 'fund-securite-infra', name: 'ODDO BHF Sécurité Infra Euro', isin: 'LU0876266276', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'MANDATORY', allocation: 0.10, geographicFocus: 'Europe', esgClassification: 'High', performance1Y: 2.85, fundType: 'UCITS', isMandatory: true },
@@ -1057,7 +1090,7 @@
         { fundId: 'fund-slp-opportunites', name: 'SLP ODDO BHF Opportunités Stratégiques', isin: 'FR001400KK24', riskLevel: 'Very High', assetClass: 'Private Equity', assetType: 'Private Equity', category: 'PE', allocation: 0.12, geographicFocus: 'Global', esgClassification: 'Medium', performance1Y: 7.20, fundType: 'SLP', contractEligible: ['fipavie-ingenierie', 'fipavie-opportunites', 'fipavie-expertises', 'fipavie-transmission', 'per-opportunites', 'premavenir-per'] }
     ];
 
-    // ✅ v3.4 - UPDATED CONTRACTS WITH GREEN PLANET INCLUDED
+    // ✅ v3.5 - UPDATED CONTRACTS WITH GREEN PLANET
     const contracts = {
         'fipavie-ingenierie': {
             name: 'Fipavie Ingénierie',
@@ -1195,12 +1228,17 @@
             monthlyContainer.innerHTML = html;
         }
 
-        displayEligibilityNotes(contractType);
+        displayEligibilityNote(contractType);
     }
 
-    function displayEligibilityNotes(contractType) {
+    function displayEligibilityNote(contractType) {
         const eligibility = contractEligibility[contractType];
-        if (!eligibility) return;
+        const noteElement = document.getElementById('eligibilityNote');
+        
+        if (!eligibility) {
+            noteElement.classList.add('hide');
+            return;
+        }
 
         let immobilierNote = '<strong>📍 Immobilier:</strong> ';
         let peNote = '<strong>💎 Private Equity:</strong> ';
@@ -1227,26 +1265,15 @@
             }
         });
 
-        const initialNote = document.getElementById('initialEligibilityNote');
-        const monthlyNote = document.getElementById('monthlyEligibilityNote');
-
-        if (document.getElementById('manualInitial').checked) {
-            let noteContent = '';
-            if (hasImmobilier) noteContent += immobilierNote + '<br>';
-            if (hasPE) noteContent += peNote;
-            if (noteContent) {
-                initialNote.innerHTML = noteContent;
-                initialNote.style.display = 'block';
-            }
-        }
-        if (document.getElementById('manualMonthly').checked) {
-            let noteContent = '';
-            if (hasImmobilier) noteContent += immobilierNote + '<br>';
-            if (hasPE) noteContent += peNote;
-            if (noteContent) {
-                monthlyNote.innerHTML = noteContent;
-                monthlyNote.style.display = 'block';
-            }
+        let noteContent = '';
+        if (hasImmobilier) noteContent += immobilierNote + '<br>';
+        if (hasPE) noteContent += peNote;
+        
+        if (noteContent) {
+            noteElement.innerHTML = noteContent;
+            noteElement.classList.remove('hide');
+        } else {
+            noteElement.classList.add('hide');
         }
     }
 
@@ -1278,18 +1305,23 @@
 
     function toggleInitialManualSelection() {
         const checkbox = document.getElementById('manualInitial');
-        document.getElementById('initialManualSelection').style.display = checkbox.checked ? 'block' : 'none';
-        if (checkbox.checked && selectedInitialFunds.length === 0) {
+        const manualContainer = document.getElementById('manualSelectionsContainer');
+        const autoContainer = document.getElementById('autoSelectionsContainer');
+        
+        if (checkbox.checked) {
+            manualContainer.style.display = 'block';
+            autoContainer.style.display = 'none';
             populateFundSelectors();
+        } else {
+            manualContainer.style.display = 'none';
+            autoContainer.style.display = 'block';
+            selectedInitialFunds = [];
         }
     }
 
     function toggleMonthlyManualSelection() {
         const checkbox = document.getElementById('manualMonthly');
-        document.getElementById('monthlyManualSelection').style.display = checkbox.checked ? 'block' : 'none';
-        if (checkbox.checked && selectedMonthlyFunds.length === 0) {
-            populateFundSelectors();
-        }
+        populateFundSelectors();
     }
 
     function displayConstraints(profileType, constraintListId) {
@@ -1355,9 +1387,9 @@
 
         const errors = [];
 
-        if (!contractId) errors.push('❌ Veuillez sélectionner un type de contrat');
-        if (!initialProfile) errors.push('❌ Veuillez sélectionner un profil de risque pour le versement initial');
-        if (!monthlyProfile) errors.push('❌ Veuillez sélectionner un profil de risque pour le versement mensuel');
+        if (!contractId) errors.push('❌ Veuillez sélectionnez un type de contrat');
+        if (!initialProfile) errors.push('❌ Veuillez sélectionnez un profil de risque pour le versement initial');
+        if (!monthlyProfile) errors.push('❌ Veuillez sélectionnez un profil de risque pour le versement mensuel');
         
         if (isNaN(initialFunding) || initialFunding < 1500) {
             errors.push('❌ Le versement initial doit être d\'au moins €1.500');
@@ -1678,8 +1710,8 @@
         document.getElementById('monthlyFunding').value = '';
         document.getElementById('manualInitial').checked = false;
         document.getElementById('manualMonthly').checked = false;
-        document.getElementById('initialManualSelection').style.display = 'none';
-        document.getElementById('monthlyManualSelection').style.display = 'none';
+        document.getElementById('manualSelectionsContainer').style.display = 'none';
+        document.getElementById('autoSelectionsContainer').style.display = 'block';
         document.getElementById('resultsSection').style.display = 'none';
         document.getElementById('initialTableSection').classList.remove('active');
         document.getElementById('monthlyTableSection').classList.remove('active');
