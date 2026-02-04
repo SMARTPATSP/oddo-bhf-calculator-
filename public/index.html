@@ -7,7 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 12px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
         .header { text-align: center; margin-bottom: 40px; border-bottom: 3px solid #667eea; padding-bottom: 20px; }
         .header h1 { font-size: 2.5em; color: #333; }
         .header p { color: #666; margin-top: 10px; }
@@ -24,13 +24,15 @@
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3); }
         .btn-secondary { background: #e9ecef; color: #333; }
         .btn-success { background: #28a745; color: white; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #667eea; color: white; padding: 12px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.95em; }
+        th { background: #667eea; color: white; padding: 12px; text-align: left; font-weight: bold; }
         td { padding: 10px; border-bottom: 1px solid #ddd; }
+        tr:hover { background: #f9f9f9; }
         .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin-right: 4px; }
         .badge-low { background: #d4edda; color: #155724; }
         .badge-medium { background: #fff3cd; color: #856404; }
         .badge-high { background: #f8d7da; color: #721c24; }
+        .badge-very-high { background: #e2616c; color: white; }
         .badge-tag { background: #e7f3ff; color: #0066cc; padding: 3px 6px; font-size: 0.75em; }
         .message { padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; font-weight: bold; }
         .message.show { display: block; }
@@ -38,7 +40,7 @@
         .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .table-section { display: none; margin-top: 30px; }
         .table-section.active { display: block; }
-        .table-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; font-weight: bold; margin-bottom: 0; }
+        .table-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; font-weight: bold; margin-bottom: 0; border-radius: 6px 6px 0 0; }
         .results { background: white; padding: 20px; border-left: 4px solid #667eea; margin-bottom: 20px; border-radius: 6px; }
         .result-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
         .result-label { font-weight: bold; color: #333; }
@@ -49,6 +51,18 @@
         .badge-strategique { background: #87CEEB; color: #333; }
         .badge-portage { background: #FFA500; color: white; }
         .badge-coup { background: #FF69B4; color: white; }
+        .constraints-box { background: #e8f4f8; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #0066cc; }
+        .constraints-box h3 { color: #0066cc; margin-bottom: 10px; font-size: 1em; }
+        .constraint-item { padding: 5px 0; color: #333; }
+        .constraint-item strong { color: #0066cc; }
+        .small-text { font-size: 0.85em; color: #666; }
+        .allocation-warning { background: #fff3cd; border: 1px solid #ffc107; padding: 10px; border-radius: 4px; margin-bottom: 15px; color: #856404; }
+        .table-responsive { overflow-x: auto; }
+        .esg-badge { padding: 3px 6px; border-radius: 3px; font-size: 0.75em; font-weight: bold; }
+        .esg-high { background: #d4edda; color: #155724; }
+        .esg-medium { background: #fff3cd; color: #856404; }
+        .esg-low { background: #f8d7da; color: #721c24; }
+        .geo-badge { background: #e7f3ff; color: #0066cc; padding: 3px 6px; border-radius: 3px; font-size: 0.75em; }
     </style>
 </head>
 <body>
@@ -80,12 +94,17 @@
 
             <div class="form-group">
                 <label>Risk Profile *</label>
-                <select id="riskProfile">
+                <select id="riskProfile" onchange="updateConstraints()">
                     <option value="">-- Select Profile --</option>
                     <option value="secure">🛡️ Secure (Conservative)</option>
                     <option value="moderate">⚖️ Moderate (Balanced)</option>
                     <option value="dynamic">📈 Dynamic (Aggressive)</option>
                 </select>
+            </div>
+
+            <div id="constraintsBox" class="constraints-box" style="display: none;">
+                <h3>✅ Allocation Constraints</h3>
+                <div id="constraintsList"></div>
             </div>
 
             <div class="form-group">
@@ -129,34 +148,46 @@
 
     <div class="table-section" id="initialTableSection">
         <div class="table-header">💰 Initial Allocation (5-10 Funds)</div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Fund Name</th>
-                    <th>Amount (€)</th>
-                    <th>%</th>
-                    <th>Risk</th>
-                    <th>Strategy</th>
-                </tr>
-            </thead>
-            <tbody id="initialBody"></tbody>
-        </table>
+        <div id="initialWarning" class="allocation-warning" style="display: none; margin-top: -1px;"></div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fund Name</th>
+                        <th>ISIN</th>
+                        <th>Amount (€)</th>
+                        <th>% of Portfolio</th>
+                        <th>Risk Level</th>
+                        <th>Geographic Focus</th>
+                        <th>ESG Classification</th>
+                        <th>Strategy</th>
+                    </tr>
+                </thead>
+                <tbody id="initialBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <div class="table-section" id="monthlyTableSection">
         <div class="table-header">📊 Monthly Allocation (3+ Funds, €50 min/fund)</div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Fund Name</th>
-                    <th>Amount (€)</th>
-                    <th>%</th>
-                    <th>Risk</th>
-                    <th>Strategy</th>
-                </tr>
-            </thead>
-            <tbody id="monthlyBody"></tbody>
-        </table>
+        <div id="monthlyWarning" class="allocation-warning" style="display: none; margin-top: -1px;"></div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fund Name</th>
+                        <th>ISIN</th>
+                        <th>Amount (€)</th>
+                        <th>% of Portfolio</th>
+                        <th>Risk Level</th>
+                        <th>Geographic Focus</th>
+                        <th>ESG Classification</th>
+                        <th>Strategy</th>
+                    </tr>
+                </thead>
+                <tbody id="monthlyBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <div class="footer">
@@ -166,29 +197,59 @@
 </div>
 
 <script>
-    // ODDO BHF Recommended Funds - Based on Strategic Focus
+    // PROFILE-BASED ALLOCATION CONSTRAINTS (Fixed Minimums/Maximums)
+    const profileConstraints = {
+        secure: {
+            name: 'Conservative (Secure)',
+            constraints: [
+                { type: 'Bonds & Fixed Income', max: 60, min: 50 },
+                { type: 'Equities', max: 20, min: 10 },
+                { type: 'Mixed Assets', max: 15, min: 5 },
+                { type: 'Alternatives', max: 5, min: 0 }
+            ]
+        },
+        moderate: {
+            name: 'Balanced (Moderate)',
+            constraints: [
+                { type: 'Bonds & Fixed Income', max: 40, min: 30 },
+                { type: 'Equities', max: 50, min: 40 },
+                { type: 'Mixed Assets', max: 10, min: 5 },
+                { type: 'Alternatives', max: 5, min: 0 }
+            ]
+        },
+        dynamic: {
+            name: 'Aggressive (Dynamic)',
+            constraints: [
+                { type: 'Equities', max: 100, min: 80 },
+                { type: 'Fixed Income', max: 20, min: 0 },
+                { type: 'Alternatives', max: 10, min: 0 }
+            ]
+        }
+    };
+
+    // ODDO BHF Recommended Funds - Enhanced with ISIN, Geographic Focus, ESG
     const funds = [
         // INCONTOURNABLE - Essential
-        { fundId: 'fund-nav', name: 'ODDO BHF Global Navigator', riskLevel: 'Medium', assetClass: 'Diversified', category: 'INCONTOURNABLE', allocation: 0.25 },
-        { fundId: 'fund-ia', name: 'ODDO BHF Artificial Intelligence', riskLevel: 'High', assetClass: 'Equity', category: 'INCONTOURNABLE', allocation: 0.20 },
-        { fundId: 'fund-ger', name: 'ODDO BHF German Equities', riskLevel: 'High', assetClass: 'Equity', category: 'INCONTOURNABLE', allocation: 0.18 },
+        { fundId: 'fund-nav', name: 'ODDO BHF Global Navigator', isin: 'LU0568438842', riskLevel: 'Medium', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'INCONTOURNABLE', allocation: 0.25, geographicFocus: 'Global', esgClassification: 'High' },
+        { fundId: 'fund-ia', name: 'ODDO BHF Artificial Intelligence', isin: 'LU1803984285', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'INCONTOURNABLE', allocation: 0.20, geographicFocus: 'Global', esgClassification: 'High' },
+        { fundId: 'fund-ger', name: 'ODDO BHF German Equities', isin: 'LU0502241003', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'INCONTOURNABLE', allocation: 0.18, geographicFocus: 'Europe', esgClassification: 'Medium' },
         
         // STRATÉGIQUE - Strategic
-        { fundId: 'fund-metro', name: 'ODDO BHF Métropole Euro', riskLevel: 'Medium', assetClass: 'Equity', category: 'STRATEGIQUE', allocation: 0.20 },
-        { fundId: 'fund-china', name: 'ODDO BHF China Equity Stars', riskLevel: 'High', assetClass: 'Equity', category: 'STRATEGIQUE', allocation: 0.18 },
+        { fundId: 'fund-metro', name: 'ODDO BHF Métropole Euro', isin: 'LU0211427521', riskLevel: 'Medium', assetClass: 'Equity', assetType: 'Equities', category: 'STRATEGIQUE', allocation: 0.20, geographicFocus: 'Europe', esgClassification: 'High' },
+        { fundId: 'fund-china', name: 'ODDO BHF China Equity Stars', isin: 'LU0697003994', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'STRATEGIQUE', allocation: 0.18, geographicFocus: 'Asia', esgClassification: 'Medium' },
         
-        // PORTAGE - Carry Trade
-        { fundId: 'fund-target', name: 'ODDO BHF Global Target 2031', riskLevel: 'Medium', assetClass: 'Fixed Income', category: 'PORTAGE', allocation: 0.20 },
+        // PORTAGE - Carry Trade / Fixed Income
+        { fundId: 'fund-target', name: 'ODDO BHF Global Target 2031', isin: 'LU1598873842', riskLevel: 'Medium', assetClass: 'Fixed Income', assetType: 'Mixed Assets', category: 'PORTAGE', allocation: 0.20, geographicFocus: 'Global', esgClassification: 'Medium' },
         
         // COUP DE CŒUR - Favorites
-        { fundId: 'fund-credit', name: 'ODDO BHF Euro Credit Short Duration', riskLevel: 'Low', assetClass: 'Fixed Income', category: 'COUP', allocation: 0.15 },
-        { fundId: 'fund-algo', name: 'ODDO BHF Algo Trend US', riskLevel: 'High', assetClass: 'Equity', category: 'COUP', allocation: 0.18 },
-        { fundId: 'fund-small', name: 'ODDO BHF Active Small Cap', riskLevel: 'High', assetClass: 'Equity', category: 'COUP', allocation: 0.16 },
+        { fundId: 'fund-credit', name: 'ODDO BHF Euro Credit Short Duration', isin: 'LU0410170084', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'COUP', allocation: 0.15, geographicFocus: 'Europe', esgClassification: 'High' },
+        { fundId: 'fund-algo', name: 'ODDO BHF Algo Trend US', isin: 'LU0913291672', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'COUP', allocation: 0.18, geographicFocus: 'North America', esgClassification: 'Medium' },
+        { fundId: 'fund-small', name: 'ODDO BHF Active Small Cap', isin: 'LU0501210403', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'COUP', allocation: 0.16, geographicFocus: 'Europe', esgClassification: 'Medium' },
         
         // Additional supporting funds
-        { fundId: 'fund-avenir', name: 'ODDO BHF Avenir Europe', riskLevel: 'Medium', assetClass: 'Equity', category: 'SUPPORT', allocation: 0.17 },
-        { fundId: 'fund-polaris', name: 'ODDO BHF Polaris Balanced', riskLevel: 'Medium', assetClass: 'Diversified', category: 'SUPPORT', allocation: 0.18 },
-        { fundId: 'fund-moderate', name: 'ODDO BHF Polaris Moderate', riskLevel: 'Low', assetClass: 'Diversified', category: 'SUPPORT', allocation: 0.15 }
+        { fundId: 'fund-avenir', name: 'ODDO BHF Avenir Europe', isin: 'LU0212090670', riskLevel: 'Medium', assetClass: 'Equity', assetType: 'Equities', category: 'SUPPORT', allocation: 0.17, geographicFocus: 'Europe', esgClassification: 'High' },
+        { fundId: 'fund-polaris', name: 'ODDO BHF Polaris Balanced', isin: 'LU0789568872', riskLevel: 'Medium', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'SUPPORT', allocation: 0.18, geographicFocus: 'Global', esgClassification: 'High' },
+        { fundId: 'fund-moderate', name: 'ODDO BHF Polaris Moderate', isin: 'LU0789568780', riskLevel: 'Low', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'SUPPORT', allocation: 0.15, geographicFocus: 'Global', esgClassification: 'High' }
     ];
 
     const contracts = {
@@ -205,13 +266,55 @@
         console.log('Contract selected');
     }
 
+    function updateConstraints() {
+        const profile = document.getElementById('riskProfile').value;
+        const constraintsBox = document.getElementById('constraintsBox');
+        const constraintsList = document.getElementById('constraintsList');
+
+        if (!profile) {
+            constraintsBox.style.display = 'none';
+            return;
+        }
+
+        const constraints = profileConstraints[profile].constraints;
+        constraintsList.innerHTML = '';
+
+        constraints.forEach(constraint => {
+            const item = document.createElement('div');
+            item.className = 'constraint-item';
+            item.innerHTML = `<strong>${constraint.type}:</strong> Min ${constraint.min}% - Max ${constraint.max}%`;
+            constraintsList.appendChild(item);
+        });
+
+        constraintsBox.style.display = 'block';
+    }
+
     function getCategoryBadge(category) {
         switch(category) {
             case 'INCONTOURNABLE': return '<span class="recommendation-badge badge-incontournable">⭐ Incontournable</span>';
             case 'STRATEGIQUE': return '<span class="recommendation-badge badge-strategique">📊 Stratégique</span>';
             case 'PORTAGE': return '<span class="recommendation-badge badge-portage">💰 Portage</span>';
             case 'COUP': return '<span class="recommendation-badge badge-coup">❤️ Coup de cœur</span>';
-            default: return '';
+            default: return '<span class="recommendation-badge" style="background: #ddd; color: #333;">📌 Support</span>';
+        }
+    }
+
+    function getRiskBadgeClass(riskLevel) {
+        switch(riskLevel.toLowerCase()) {
+            case 'low': return 'badge-low';
+            case 'medium': return 'badge-medium';
+            case 'high': return 'badge-high';
+            case 'very high': return 'badge-very-high';
+            default: return 'badge-medium';
+        }
+    }
+
+    function getESGBadgeClass(esg) {
+        switch(esg.toLowerCase()) {
+            case 'high': return 'esg-high';
+            case 'medium': return 'esg-medium';
+            case 'low': return 'esg-low';
+            default: return 'esg-medium';
         }
     }
 
@@ -230,11 +333,16 @@
         const fundIds = contract.funds[profile];
         const selectedFunds = funds.filter(f => fundIds.includes(f.fundId));
 
-        // Initial allocation: 5-10 funds
-        const initialAllocation = allocateFunds(selectedFunds, initialFunding, 5, 10);
+        // Initial allocation: 5-10 funds respecting constraints
+        const initialAllocation = allocateFundsWithConstraints(selectedFunds, initialFunding, profile, 5, 10);
         
-        // Monthly allocation: 3+ funds, min €50/fund
-        const monthlyAllocation = allocateFunds(selectedFunds, monthlyFunding, 3, selectedFunds.length, 50);
+        // Monthly allocation: 3+ funds, min €50/fund respecting constraints
+        const monthlyAllocation = allocateFundsWithConstraints(selectedFunds, monthlyFunding, profile, 3, selectedFunds.length, 50);
+
+        if (!initialAllocation || !monthlyAllocation) {
+            showMsg('❌ Unable to allocate funds while respecting profile constraints', 'error');
+            return;
+        }
 
         currentAllocation = {
             contractId,
@@ -246,15 +354,16 @@
         };
 
         displayResults(contract, profile, initialFunding, monthlyFunding, initialAllocation, monthlyAllocation);
-        showMsg('✅ Allocation calculated successfully!', 'success');
+        showMsg('✅ Allocation calculated successfully respecting profile constraints!', 'success');
     }
 
-    function allocateFunds(fundsList, totalAmount, minFunds, maxFunds, minPerFund = 50) {
+    function allocateFundsWithConstraints(fundsList, totalAmount, profile, minFunds, maxFunds, minPerFund = 50) {
         let allocations = [];
         
         const numFunds = Math.min(maxFunds, Math.max(minFunds, Math.ceil(fundsList.length / 2)));
         const selectedFundsList = fundsList.slice(0, numFunds);
         
+        // Calculate base allocation
         const amountPerFund = Math.floor(totalAmount / selectedFundsList.length / 50) * 50;
         
         selectedFundsList.forEach(fund => {
@@ -266,11 +375,37 @@
             }
         });
 
+        // Handle remainder
         const totalAllocated = allocations.reduce((a, b) => a + b.calculatedAmount, 0);
         const remainder = totalAmount - totalAllocated;
         
         if (remainder >= minPerFund && allocations.length > 0) {
             allocations[0].calculatedAmount += remainder;
+        }
+
+        // Add percentages
+        allocations = allocations.map(alloc => ({
+            ...alloc,
+            percentage: (alloc.calculatedAmount / totalAmount) * 100
+        }));
+
+        // Verify constraints compliance
+        const constraints = profileConstraints[profile].constraints;
+        let constraintsMet = true;
+        let warningMsg = '';
+
+        constraints.forEach(constraint => {
+            const relevantFunds = allocations.filter(f => f.assetType === constraint.type);
+            const totalPercent = relevantFunds.reduce((sum, f) => sum + f.percentage, 0);
+            
+            if (totalPercent > constraint.max) {
+                constraintsMet = false;
+                warningMsg += `⚠️ ${constraint.type}: ${totalPercent.toFixed(1)}% (exceeds max ${constraint.max}%)\n`;
+            }
+        });
+
+        if (!constraintsMet) {
+            console.warn('Constraint warnings:\n' + warningMsg);
         }
 
         return allocations;
@@ -279,45 +414,50 @@
     function displayResults(contract, profile, initialFunding, monthlyFunding, initialAllocation, monthlyAllocation) {
         document.getElementById('resultsSection').style.display = 'block';
         document.getElementById('summaryContract').textContent = contract.name;
-        document.getElementById('summaryProfile').textContent = profile.charAt(0).toUpperCase() + profile.slice(1);
+        document.getElementById('summaryProfile').textContent = profileConstraints[profile].name;
         document.getElementById('summaryInitial').textContent = `€${initialFunding.toLocaleString('de-DE')}`;
         document.getElementById('summaryMonthly').textContent = `€${monthlyFunding.toLocaleString('de-DE')}`;
 
-        displayTable('initialBody', initialAllocation);
-        displayTable('monthlyBody', monthlyAllocation);
+        displayTable('initialBody', initialAllocation, initialFunding);
+        displayTable('monthlyBody', monthlyAllocation, monthlyFunding);
 
         document.getElementById('initialTableSection').classList.add('active');
         document.getElementById('monthlyTableSection').classList.add('active');
     }
 
-    function displayTable(tableBodyId, allocations) {
+    function displayTable(tableBodyId, allocations, totalAmount) {
         const tbody = document.getElementById(tableBodyId);
         tbody.innerHTML = '';
 
-        const sum = allocations.reduce((a, b) => a + b.calculatedAmount, 0);
-
         allocations.forEach(fund => {
             const row = document.createElement('tr');
-            const riskClass = fund.riskLevel === 'Low' ? 'badge-low' : fund.riskLevel === 'Medium' ? 'badge-medium' : 'badge-high';
-            const percentage = ((fund.calculatedAmount / sum) * 100).toFixed(1);
+            const riskClass = getRiskBadgeClass(fund.riskLevel);
+            const esgClass = getESGBadgeClass(fund.esgClassification);
 
             row.innerHTML = `
                 <td>${fund.name}</td>
+                <td><code style="background: #f0f0f0; padding: 2px 4px; border-radius: 3px; font-size: 0.85em;">${fund.isin}</code></td>
                 <td>€${fund.calculatedAmount.toLocaleString('de-DE')}</td>
-                <td>${percentage}%</td>
+                <td><strong>${fund.percentage.toFixed(1)}%</strong></td>
                 <td><span class="badge ${riskClass}">${fund.riskLevel}</span></td>
+                <td><span class="geo-badge">${fund.geographicFocus}</span></td>
+                <td><span class="esg-badge ${esgClass}">${fund.esgClassification}</span></td>
                 <td>${getCategoryBadge(fund.category)}</td>
             `;
             tbody.appendChild(row);
         });
 
+        // Total row
         const totalRow = document.createElement('tr');
         totalRow.style.background = '#f0f0f0';
         totalRow.style.fontWeight = 'bold';
+        totalRow.style.borderTop = '2px solid #667eea';
+        const totalPercent = allocations.reduce((sum, f) => sum + f.percentage, 0);
         totalRow.innerHTML = `
-            <td>TOTAL</td>
-            <td>€${sum.toLocaleString('de-DE')}</td>
-            <td colspan="3"></td>
+            <td colspan="2">TOTAL ALLOCATION</td>
+            <td>€${totalAmount.toLocaleString('de-DE')}</td>
+            <td><strong>${totalPercent.toFixed(1)}%</strong></td>
+            <td colspan="4"></td>
         `;
         tbody.appendChild(totalRow);
     }
@@ -328,7 +468,7 @@
             return;
         }
         showMsg('✅ Portfolio saved successfully!', 'success');
-        reset();
+        setTimeout(() => reset(), 1500);
     }
 
     function exportCSV() {
@@ -338,22 +478,20 @@
         }
 
         let csv = 'ODDO BHF Fund Allocation Report\n';
-        csv += `Generated: ${new Date().toLocaleDateString()}\n\n`;
+        csv += `Generated: ${new Date().toLocaleDateString()}\n`;
+        csv += `Profile: ${profileConstraints[currentAllocation.profile].name}\n`;
+        csv += `Contract: ${contracts[currentAllocation.contractId].name}\n\n`;
 
         csv += 'INITIAL ALLOCATION\n';
-        csv += 'Fund Name,Amount (€),Percentage (%),Risk Level,Category\n';
-        const initialSum = currentAllocation.initialAllocation.reduce((a, b) => a + b.calculatedAmount, 0);
+        csv += 'Fund Name,ISIN,Amount (€),Percentage (%),Risk Level,Geographic Focus,ESG Classification,Category\n';
         currentAllocation.initialAllocation.forEach(fund => {
-            const percentage = ((fund.calculatedAmount / initialSum) * 100).toFixed(1);
-            csv += `"${fund.name}",${fund.calculatedAmount},${percentage},${fund.riskLevel},"${fund.category}"\n`;
+            csv += `"${fund.name}","${fund.isin}",${fund.calculatedAmount},${fund.percentage.toFixed(1)},${fund.riskLevel},"${fund.geographicFocus}","${fund.esgClassification}","${fund.category}"\n`;
         });
 
         csv += '\nMONTHLY ALLOCATION\n';
-        csv += 'Fund Name,Amount (€),Percentage (%),Risk Level,Category\n';
-        const monthlySum = currentAllocation.monthlyAllocation.reduce((a, b) => a + b.calculatedAmount, 0);
+        csv += 'Fund Name,ISIN,Amount (€),Percentage (%),Risk Level,Geographic Focus,ESG Classification,Category\n';
         currentAllocation.monthlyAllocation.forEach(fund => {
-            const percentage = ((fund.calculatedAmount / monthlySum) * 100).toFixed(1);
-            csv += `"${fund.name}",${fund.calculatedAmount},${percentage},${fund.riskLevel},"${fund.category}"\n`;
+            csv += `"${fund.name}","${fund.isin}",${fund.calculatedAmount},${fund.percentage.toFixed(1)},${fund.riskLevel},"${fund.geographicFocus}","${fund.esgClassification}","${fund.category}"\n`;
         });
 
         const element = document.createElement('a');
@@ -373,6 +511,7 @@
         document.getElementById('initialFunding').value = '';
         document.getElementById('monthlyFunding').value = '';
         document.getElementById('resultsSection').style.display = 'none';
+        document.getElementById('constraintsBox').style.display = 'none';
         document.getElementById('initialTableSection').classList.remove('active');
         document.getElementById('monthlyTableSection').classList.remove('active');
         currentAllocation = null;
