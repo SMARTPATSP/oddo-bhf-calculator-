@@ -27,10 +27,11 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { background: #667eea; color: white; padding: 12px; text-align: left; }
         td { padding: 10px; border-bottom: 1px solid #ddd; }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin-right: 4px; }
         .badge-low { background: #d4edda; color: #155724; }
         .badge-medium { background: #fff3cd; color: #856404; }
         .badge-high { background: #f8d7da; color: #721c24; }
+        .badge-tag { background: #e7f3ff; color: #0066cc; padding: 3px 6px; font-size: 0.75em; }
         .message { padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; font-weight: bold; }
         .message.show { display: block; }
         .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
@@ -43,6 +44,11 @@
         .result-label { font-weight: bold; color: #333; }
         .result-value { color: #667eea; font-weight: bold; font-size: 1.1em; }
         .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 0.9em; }
+        .recommendation-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; margin-left: 5px; }
+        .badge-incontournable { background: #FFD700; color: #333; }
+        .badge-strategique { background: #87CEEB; color: #333; }
+        .badge-portage { background: #FFA500; color: white; }
+        .badge-coup { background: #FF69B4; color: white; }
     </style>
 </head>
 <body>
@@ -50,8 +56,8 @@
 <div class="container">
     <div class="header">
         <h1>🎯 ODDO BHF Fund Allocation Tool</h1>
-        <p>Professional Portfolio Management Solution</p>
-        <p style="font-size: 0.85em; margin-top: 5px;">v2.0 | Production Ready</p>
+        <p>Professional Portfolio Management Solution - 2026</p>
+        <p style="font-size: 0.85em; margin-top: 5px;">Sélection d'investissements selon les recommandations ODDO BHF</p>
     </div>
 
     <div class="message" id="message"></div>
@@ -130,6 +136,7 @@
                     <th>Amount (€)</th>
                     <th>%</th>
                     <th>Risk</th>
+                    <th>Strategy</th>
                 </tr>
             </thead>
             <tbody id="initialBody"></tbody>
@@ -145,6 +152,7 @@
                     <th>Amount (€)</th>
                     <th>%</th>
                     <th>Risk</th>
+                    <th>Strategy</th>
                 </tr>
             </thead>
             <tbody id="monthlyBody"></tbody>
@@ -153,39 +161,58 @@
 
     <div class="footer">
         <p>© 2026 ODDO BHF Asset Management | Professional Edition v2.0</p>
-        <p>For Professional Use Only</p>
+        <p>For Professional Use Only | Document confidentiel distributeurs</p>
     </div>
 </div>
 
 <script>
-    // Embedded data - no API calls needed
+    // ODDO BHF Recommended Funds - Based on Strategic Focus
     const funds = [
-        { fundId: 'fund-001', name: 'ODDO BHF Sécurité Infra Euro', riskLevel: 'Low', assetClass: 'Fixed Income' },
-        { fundId: 'fund-002', name: 'ODDO BHF Sécurité en euros', riskLevel: 'Low', assetClass: 'Fixed Income' },
-        { fundId: 'fund-003', name: 'ODDO BHF Euro Credit Short Duration', riskLevel: 'Low', assetClass: 'Fixed Income' },
-        { fundId: 'fund-004', name: 'ODDO BHF Global Target 2031', riskLevel: 'Medium', assetClass: 'Fixed Income' },
-        { fundId: 'fund-005', name: 'ODDO BHF Métropole Euro', riskLevel: 'Medium', assetClass: 'Equity' },
-        { fundId: 'fund-006', name: 'ODDO BHF Avenir Europe', riskLevel: 'Medium', assetClass: 'Equity' },
-        { fundId: 'fund-007', name: 'ODDO BHF Avenir Euro', riskLevel: 'Medium', assetClass: 'Equity' },
-        { fundId: 'fund-011', name: 'ODDO BHF Artificial Intelligence', riskLevel: 'High', assetClass: 'Equity' },
-        { fundId: 'fund-012', name: 'ODDO BHF Algo Trend US', riskLevel: 'High', assetClass: 'Equity' },
-        { fundId: 'fund-015', name: 'ODDO BHF Polaris Moderate', riskLevel: 'Low', assetClass: 'Diversified' },
-        { fundId: 'fund-016', name: 'ODDO BHF Polaris Balanced', riskLevel: 'Medium', assetClass: 'Diversified' },
-        { fundId: 'fund-017', name: 'ODDO BHF Polaris Dynamic', riskLevel: 'High', assetClass: 'Diversified' }
+        // INCONTOURNABLE - Essential
+        { fundId: 'fund-nav', name: 'ODDO BHF Global Navigator', riskLevel: 'Medium', assetClass: 'Diversified', category: 'INCONTOURNABLE', allocation: 0.25 },
+        { fundId: 'fund-ia', name: 'ODDO BHF Artificial Intelligence', riskLevel: 'High', assetClass: 'Equity', category: 'INCONTOURNABLE', allocation: 0.20 },
+        { fundId: 'fund-ger', name: 'ODDO BHF German Equities', riskLevel: 'High', assetClass: 'Equity', category: 'INCONTOURNABLE', allocation: 0.18 },
+        
+        // STRATÉGIQUE - Strategic
+        { fundId: 'fund-metro', name: 'ODDO BHF Métropole Euro', riskLevel: 'Medium', assetClass: 'Equity', category: 'STRATEGIQUE', allocation: 0.20 },
+        { fundId: 'fund-china', name: 'ODDO BHF China Equity Stars', riskLevel: 'High', assetClass: 'Equity', category: 'STRATEGIQUE', allocation: 0.18 },
+        
+        // PORTAGE - Carry Trade
+        { fundId: 'fund-target', name: 'ODDO BHF Global Target 2031', riskLevel: 'Medium', assetClass: 'Fixed Income', category: 'PORTAGE', allocation: 0.20 },
+        
+        // COUP DE CŒUR - Favorites
+        { fundId: 'fund-credit', name: 'ODDO BHF Euro Credit Short Duration', riskLevel: 'Low', assetClass: 'Fixed Income', category: 'COUP', allocation: 0.15 },
+        { fundId: 'fund-algo', name: 'ODDO BHF Algo Trend US', riskLevel: 'High', assetClass: 'Equity', category: 'COUP', allocation: 0.18 },
+        { fundId: 'fund-small', name: 'ODDO BHF Active Small Cap', riskLevel: 'High', assetClass: 'Equity', category: 'COUP', allocation: 0.16 },
+        
+        // Additional supporting funds
+        { fundId: 'fund-avenir', name: 'ODDO BHF Avenir Europe', riskLevel: 'Medium', assetClass: 'Equity', category: 'SUPPORT', allocation: 0.17 },
+        { fundId: 'fund-polaris', name: 'ODDO BHF Polaris Balanced', riskLevel: 'Medium', assetClass: 'Diversified', category: 'SUPPORT', allocation: 0.18 },
+        { fundId: 'fund-moderate', name: 'ODDO BHF Polaris Moderate', riskLevel: 'Low', assetClass: 'Diversified', category: 'SUPPORT', allocation: 0.15 }
     ];
 
     const contracts = {
-        'fipavie-ingenierie': { name: 'Fipavie Ingénierie', funds: { secure: ['fund-001', 'fund-003', 'fund-007', 'fund-015', 'fund-002'], moderate: ['fund-001', 'fund-003', 'fund-005', 'fund-007', 'fund-015', 'fund-016'], dynamic: ['fund-003', 'fund-005', 'fund-007', 'fund-011', 'fund-012', 'fund-017'] } },
-        'fipavie-opportunites': { name: 'Fipavie Opportunités', funds: { secure: ['fund-002', 'fund-003', 'fund-015', 'fund-001', 'fund-004'], moderate: ['fund-002', 'fund-003', 'fund-005', 'fund-007', 'fund-016', 'fund-015'], dynamic: ['fund-003', 'fund-005', 'fund-007', 'fund-011', 'fund-012', 'fund-017'] } },
-        'fipavie-expertises': { name: 'Fipavie Expertises', funds: { secure: ['fund-001', 'fund-002', 'fund-003', 'fund-015', 'fund-004'], moderate: ['fund-001', 'fund-003', 'fund-005', 'fund-016', 'fund-015'], dynamic: ['fund-003', 'fund-005', 'fund-011', 'fund-012', 'fund-017'] } },
-        'per-opportunites': { name: 'PER Opportunités', funds: { secure: ['fund-001', 'fund-003', 'fund-015', 'fund-002'], moderate: ['fund-001', 'fund-003', 'fund-005', 'fund-016', 'fund-015'], dynamic: ['fund-003', 'fund-005', 'fund-011', 'fund-012', 'fund-017'] } },
-        'premavenir-per': { name: 'Premavenir PER', funds: { secure: ['fund-002', 'fund-003', 'fund-015'], moderate: ['fund-002', 'fund-003', 'fund-005', 'fund-016'], dynamic: ['fund-005', 'fund-011', 'fund-012', 'fund-017'] } }
+        'fipavie-ingenierie': { name: 'Fipavie Ingénierie', funds: { secure: ['fund-nav', 'fund-target', 'fund-credit', 'fund-moderate', 'fund-polaris'], moderate: ['fund-nav', 'fund-metro', 'fund-avenir', 'fund-polaris', 'fund-target'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small', 'fund-metro', 'fund-china'] } },
+        'fipavie-opportunites': { name: 'Fipavie Opportunités', funds: { secure: ['fund-credit', 'fund-target', 'fund-moderate', 'fund-nav'], moderate: ['fund-metro', 'fund-avenir', 'fund-polaris', 'fund-nav', 'fund-credit'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-china', 'fund-small'] } },
+        'fipavie-expertises': { name: 'Fipavie Expertises', funds: { secure: ['fund-credit', 'fund-target', 'fund-moderate'], moderate: ['fund-metro', 'fund-polaris', 'fund-nav', 'fund-avenir'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-china'] } },
+        'per-opportunites': { name: 'PER Opportunités', funds: { secure: ['fund-credit', 'fund-target', 'fund-moderate'], moderate: ['fund-metro', 'fund-polaris', 'fund-nav'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo', 'fund-small'] } },
+        'premavenir-per': { name: 'Premavenir PER', funds: { secure: ['fund-credit', 'fund-moderate'], moderate: ['fund-metro', 'fund-polaris'], dynamic: ['fund-ia', 'fund-ger', 'fund-algo'] } }
     };
 
     let currentAllocation = null;
 
     function updateFunds() {
         console.log('Contract selected');
+    }
+
+    function getCategoryBadge(category) {
+        switch(category) {
+            case 'INCONTOURNABLE': return '<span class="recommendation-badge badge-incontournable">⭐ Incontournable</span>';
+            case 'STRATEGIQUE': return '<span class="recommendation-badge badge-strategique">📊 Stratégique</span>';
+            case 'PORTAGE': return '<span class="recommendation-badge badge-portage">💰 Portage</span>';
+            case 'COUP': return '<span class="recommendation-badge badge-coup">❤️ Coup de cœur</span>';
+            default: return '';
+        }
     }
 
     function calculate() {
@@ -225,11 +252,9 @@
     function allocateFunds(fundsList, totalAmount, minFunds, maxFunds, minPerFund = 50) {
         let allocations = [];
         
-        // Determine number of funds to use
         const numFunds = Math.min(maxFunds, Math.max(minFunds, Math.ceil(fundsList.length / 2)));
         const selectedFundsList = fundsList.slice(0, numFunds);
         
-        // Equal distribution
         const amountPerFund = Math.floor(totalAmount / selectedFundsList.length / 50) * 50;
         
         selectedFundsList.forEach(fund => {
@@ -241,7 +266,6 @@
             }
         });
 
-        // Adjust for remainder
         const totalAllocated = allocations.reduce((a, b) => a + b.calculatedAmount, 0);
         const remainder = totalAmount - totalAllocated;
         
@@ -282,6 +306,7 @@
                 <td>€${fund.calculatedAmount.toLocaleString('de-DE')}</td>
                 <td>${percentage}%</td>
                 <td><span class="badge ${riskClass}">${fund.riskLevel}</span></td>
+                <td>${getCategoryBadge(fund.category)}</td>
             `;
             tbody.appendChild(row);
         });
@@ -292,7 +317,7 @@
         totalRow.innerHTML = `
             <td>TOTAL</td>
             <td>€${sum.toLocaleString('de-DE')}</td>
-            <td colspan="2"></td>
+            <td colspan="3"></td>
         `;
         tbody.appendChild(totalRow);
     }
@@ -316,19 +341,19 @@
         csv += `Generated: ${new Date().toLocaleDateString()}\n\n`;
 
         csv += 'INITIAL ALLOCATION\n';
-        csv += 'Fund Name,Amount (€),Percentage (%),Risk Level\n';
+        csv += 'Fund Name,Amount (€),Percentage (%),Risk Level,Category\n';
         const initialSum = currentAllocation.initialAllocation.reduce((a, b) => a + b.calculatedAmount, 0);
         currentAllocation.initialAllocation.forEach(fund => {
             const percentage = ((fund.calculatedAmount / initialSum) * 100).toFixed(1);
-            csv += `"${fund.name}",${fund.calculatedAmount},${percentage},${fund.riskLevel}\n`;
+            csv += `"${fund.name}",${fund.calculatedAmount},${percentage},${fund.riskLevel},"${fund.category}"\n`;
         });
 
         csv += '\nMONTHLY ALLOCATION\n';
-        csv += 'Fund Name,Amount (€),Percentage (%),Risk Level\n';
+        csv += 'Fund Name,Amount (€),Percentage (%),Risk Level,Category\n';
         const monthlySum = currentAllocation.monthlyAllocation.reduce((a, b) => a + b.calculatedAmount, 0);
         currentAllocation.monthlyAllocation.forEach(fund => {
             const percentage = ((fund.calculatedAmount / monthlySum) * 100).toFixed(1);
-            csv += `"${fund.name}",${fund.calculatedAmount},${percentage},${fund.riskLevel}\n`;
+            csv += `"${fund.name}",${fund.calculatedAmount},${percentage},${fund.riskLevel},"${fund.category}"\n`;
         });
 
         const element = document.createElement('a');
