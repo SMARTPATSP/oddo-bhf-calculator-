@@ -71,6 +71,22 @@
         .profile-tag { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 0.75em; margin-left: 5px; }
         .profile-initial { background: #e3f2fd; color: #1976d2; }
         .profile-monthly { background: #f3e5f5; color: #7b1fa2; }
+        .performance-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+        .performance-positive { background: #d4edda; color: #155724; }
+        .performance-neutral { background: #e2e3e5; color: #383d41; }
+        .performance-negative { background: #f8d7da; color: #721c24; }
+        .performance-summary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .performance-summary h3 { color: white; margin-bottom: 15px; font-size: 1.2em; }
+        .performance-metric { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .performance-metric:last-child { border-bottom: none; }
+        .performance-metric-label { font-weight: bold; }
+        .performance-metric-value { font-size: 1.2em; font-weight: bold; }
+        .yearly-projection { background: #f0f8ff; padding: 15px; border-radius: 6px; margin-top: 15px; border-left: 4px solid #0066cc; }
+        .yearly-projection h4 { color: #0066cc; margin-bottom: 10px; }
+        .projection-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        .projection-item { background: white; padding: 10px; border-radius: 4px; border-left: 3px solid #667eea; }
+        .projection-item-label { font-size: 0.85em; color: #666; margin-bottom: 5px; }
+        .projection-item-value { font-size: 1.2em; font-weight: bold; color: #667eea; }
     </style>
 </head>
 <body>
@@ -173,6 +189,7 @@
 
     <div class="table-section" id="initialTableSection">
         <div class="table-header">💰 Initial Allocation (5-10 Funds)</div>
+        <div class="performance-summary" id="initialPerformanceSummary"></div>
         <div id="initialWarning" class="allocation-warning" style="display: none; margin-top: -1px;"></div>
         <div class="table-responsive">
             <table>
@@ -185,6 +202,7 @@
                         <th>Risk Level</th>
                         <th>Geographic Focus</th>
                         <th>ESG Classification</th>
+                        <th>1Y Performance</th>
                         <th>Strategy</th>
                     </tr>
                 </thead>
@@ -195,6 +213,7 @@
 
     <div class="table-section" id="monthlyTableSection">
         <div class="table-header">📊 Monthly Allocation (3+ Funds, €50 min/fund)</div>
+        <div class="performance-summary" id="monthlyPerformanceSummary"></div>
         <div id="monthlyWarning" class="allocation-warning" style="display: none; margin-top: -1px;"></div>
         <div class="table-responsive">
             <table>
@@ -207,6 +226,7 @@
                         <th>Risk Level</th>
                         <th>Geographic Focus</th>
                         <th>ESG Classification</th>
+                        <th>1Y Performance</th>
                         <th>Strategy</th>
                     </tr>
                 </thead>
@@ -216,7 +236,7 @@
     </div>
 
     <div class="footer">
-        <p>© 2026 ODDO BHF Asset Management | Professional Edition v2.1</p>
+        <p>© 2026 ODDO BHF Asset Management | Professional Edition v2.2</p>
         <p>For Professional Use Only | Document confidentiel distributeurs</p>
     </div>
 </div>
@@ -260,33 +280,33 @@
         }
     };
 
-    // ODDO BHF Recommended Funds - Enhanced with ISIN, Geographic Focus, ESG
+    // ODDO BHF Recommended Funds - Enhanced with ISIN, Geographic Focus, ESG, and Performance
     const funds = [
         // MANDATORY FUNDS FOR CONSERVATIVE & MODERATE
-        { fundId: 'fund-securite-infra', name: 'ODDO BHF Sécurité Infra Euro', isin: 'LU0876266276', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'MANDATORY', allocation: 0.10, geographicFocus: 'Europe', esgClassification: 'High', isMandatory: true },
-        { fundId: 'fund-securite-euro', name: 'ODDO BHF Sécurité en Euros', isin: 'LU0268403865', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'MANDATORY', allocation: 0.10, geographicFocus: 'Europe', esgClassification: 'High', isMandatory: true },
+        { fundId: 'fund-securite-infra', name: 'ODDO BHF Sécurité Infra Euro', isin: 'LU0876266276', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'MANDATORY', allocation: 0.10, geographicFocus: 'Europe', esgClassification: 'High', performance1Y: 2.85, isMandatory: true },
+        { fundId: 'fund-securite-euro', name: 'ODDO BHF Sécurité en Euros', isin: 'LU0268403865', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'MANDATORY', allocation: 0.10, geographicFocus: 'Europe', esgClassification: 'High', performance1Y: 2.45, isMandatory: true },
         
         // INCONTOURNABLE - Essential
-        { fundId: 'fund-nav', name: 'ODDO BHF Global Navigator', isin: 'LU0568438842', riskLevel: 'Medium', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'INCONTOURNABLE', allocation: 0.25, geographicFocus: 'Global', esgClassification: 'High' },
-        { fundId: 'fund-ia', name: 'ODDO BHF Artificial Intelligence', isin: 'LU1803984285', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'INCONTOURNABLE', allocation: 0.20, geographicFocus: 'Global', esgClassification: 'High' },
-        { fundId: 'fund-ger', name: 'ODDO BHF German Equities', isin: 'LU0502241003', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'INCONTOURNABLE', allocation: 0.18, geographicFocus: 'Europe', esgClassification: 'Medium' },
+        { fundId: 'fund-nav', name: 'ODDO BHF Global Navigator', isin: 'LU0568438842', riskLevel: 'Medium', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'INCONTOURNABLE', allocation: 0.25, geographicFocus: 'Global', esgClassification: 'High', performance1Y: 5.32 },
+        { fundId: 'fund-ia', name: 'ODDO BHF Artificial Intelligence', isin: 'LU1803984285', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'INCONTOURNABLE', allocation: 0.20, geographicFocus: 'Global', esgClassification: 'High', performance1Y: 8.75 },
+        { fundId: 'fund-ger', name: 'ODDO BHF German Equities', isin: 'LU0502241003', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'INCONTOURNABLE', allocation: 0.18, geographicFocus: 'Europe', esgClassification: 'Medium', performance1Y: 6.42 },
         
         // STRATÉGIQUE - Strategic
-        { fundId: 'fund-metro', name: 'ODDO BHF Métropole Euro', isin: 'LU0211427521', riskLevel: 'Medium', assetClass: 'Equity', assetType: 'Equities', category: 'STRATEGIQUE', allocation: 0.20, geographicFocus: 'Europe', esgClassification: 'High' },
-        { fundId: 'fund-china', name: 'ODDO BHF China Equity Stars', isin: 'LU0697003994', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'STRATEGIQUE', allocation: 0.18, geographicFocus: 'Asia', esgClassification: 'Medium' },
+        { fundId: 'fund-metro', name: 'ODDO BHF Métropole Euro', isin: 'LU0211427521', riskLevel: 'Medium', assetClass: 'Equity', assetType: 'Equities', category: 'STRATEGIQUE', allocation: 0.20, geographicFocus: 'Europe', esgClassification: 'High', performance1Y: 4.18 },
+        { fundId: 'fund-china', name: 'ODDO BHF China Equity Stars', isin: 'LU0697003994', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'STRATEGIQUE', allocation: 0.18, geographicFocus: 'Asia', esgClassification: 'Medium', performance1Y: 7.56 },
         
         // PORTAGE - Carry Trade / Fixed Income
-        { fundId: 'fund-target', name: 'ODDO BHF Global Target 2031', isin: 'LU1598873842', riskLevel: 'Medium', assetClass: 'Fixed Income', assetType: 'Mixed Assets', category: 'PORTAGE', allocation: 0.20, geographicFocus: 'Global', esgClassification: 'Medium' },
+        { fundId: 'fund-target', name: 'ODDO BHF Global Target 2031', isin: 'LU1598873842', riskLevel: 'Medium', assetClass: 'Fixed Income', assetType: 'Mixed Assets', category: 'PORTAGE', allocation: 0.20, geographicFocus: 'Global', esgClassification: 'Medium', performance1Y: 3.64 },
         
         // COUP DE CŒUR - Favorites
-        { fundId: 'fund-credit', name: 'ODDO BHF Euro Credit Short Duration', isin: 'LU0410170084', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'COUP', allocation: 0.15, geographicFocus: 'Europe', esgClassification: 'High' },
-        { fundId: 'fund-algo', name: 'ODDO BHF Algo Trend US', isin: 'LU0913291672', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'COUP', allocation: 0.18, geographicFocus: 'North America', esgClassification: 'Medium' },
-        { fundId: 'fund-small', name: 'ODDO BHF Active Small Cap', isin: 'LU0501210403', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'COUP', allocation: 0.16, geographicFocus: 'Europe', esgClassification: 'Medium' },
+        { fundId: 'fund-credit', name: 'ODDO BHF Euro Credit Short Duration', isin: 'LU0410170084', riskLevel: 'Low', assetClass: 'Fixed Income', assetType: 'Bonds & Fixed Income', category: 'COUP', allocation: 0.15, geographicFocus: 'Europe', esgClassification: 'High', performance1Y: 2.75 },
+        { fundId: 'fund-algo', name: 'ODDO BHF Algo Trend US', isin: 'LU0913291672', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'COUP', allocation: 0.18, geographicFocus: 'North America', esgClassification: 'Medium', performance1Y: 9.12 },
+        { fundId: 'fund-small', name: 'ODDO BHF Active Small Cap', isin: 'LU0501210403', riskLevel: 'High', assetClass: 'Equity', assetType: 'Equities', category: 'COUP', allocation: 0.16, geographicFocus: 'Europe', esgClassification: 'Medium', performance1Y: 5.89 },
         
         // Additional supporting funds
-        { fundId: 'fund-avenir', name: 'ODDO BHF Avenir Europe', isin: 'LU0212090670', riskLevel: 'Medium', assetClass: 'Equity', assetType: 'Equities', category: 'SUPPORT', allocation: 0.17, geographicFocus: 'Europe', esgClassification: 'High' },
-        { fundId: 'fund-polaris', name: 'ODDO BHF Polaris Balanced', isin: 'LU0789568872', riskLevel: 'Medium', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'SUPPORT', allocation: 0.18, geographicFocus: 'Global', esgClassification: 'High' },
-        { fundId: 'fund-moderate', name: 'ODDO BHF Polaris Moderate', isin: 'LU0789568780', riskLevel: 'Low', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'SUPPORT', allocation: 0.15, geographicFocus: 'Global', esgClassification: 'High' }
+        { fundId: 'fund-avenir', name: 'ODDO BHF Avenir Europe', isin: 'LU0212090670', riskLevel: 'Medium', assetClass: 'Equity', assetType: 'Equities', category: 'SUPPORT', allocation: 0.17, geographicFocus: 'Europe', esgClassification: 'High', performance1Y: 6.34 },
+        { fundId: 'fund-polaris', name: 'ODDO BHF Polaris Balanced', isin: 'LU0789568872', riskLevel: 'Medium', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'SUPPORT', allocation: 0.18, geographicFocus: 'Global', esgClassification: 'High', performance1Y: 4.76 },
+        { fundId: 'fund-moderate', name: 'ODDO BHF Polaris Moderate', isin: 'LU0789568780', riskLevel: 'Low', assetClass: 'Diversified', assetType: 'Mixed Assets', category: 'SUPPORT', allocation: 0.15, geographicFocus: 'Global', esgClassification: 'High', performance1Y: 3.21 }
     ];
 
     const contracts = {
@@ -382,6 +402,16 @@
             case 'low': return 'esg-low';
             default: return 'esg-medium';
         }
+    }
+
+    function getPerformanceBadgeClass(performance) {
+        if (performance >= 7) return 'performance-positive';
+        if (performance >= 4) return 'performance-neutral';
+        return 'performance-negative';
+    }
+
+    function formatPerformance(performance) {
+        return performance.toFixed(2) + '%';
     }
 
     function calculate() {
@@ -488,6 +518,61 @@
         return allAllocationsWithPercentages;
     }
 
+    function calculateWeightedPerformance(allocation) {
+        return allocation.reduce((sum, fund) => {
+            return sum + (fund.performance1Y * (fund.percentage / 100));
+        }, 0);
+    }
+
+    function calculateProjectedValue(initialAmount, performance, years = 1) {
+        return initialAmount * Math.pow((1 + performance / 100), years);
+    }
+
+    function createPerformanceSummary(allocation, totalAmount) {
+        const avgPerformance = calculateWeightedPerformance(allocation);
+        const projectedValue1Y = calculateProjectedValue(totalAmount, avgPerformance, 1);
+        const projectedGain1Y = projectedValue1Y - totalAmount;
+        const projectedValue5Y = calculateProjectedValue(totalAmount, avgPerformance, 5);
+        const projectedGain5Y = projectedValue5Y - totalAmount;
+
+        let html = `
+            <div class="performance-metric">
+                <span class="performance-metric-label">📊 Portfolio Weighted Average Performance (1Y):</span>
+                <span class="performance-metric-value" style="color: #fff;">${avgPerformance.toFixed(2)}%</span>
+            </div>
+            <div class="performance-metric">
+                <span class="performance-metric-label">💰 Projected Value (1 Year):</span>
+                <span class="performance-metric-value" style="color: #4ec74e;">€${projectedValue1Y.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </div>
+            <div class="performance-metric">
+                <span class="performance-metric-label">📈 Projected Gain (1 Year):</span>
+                <span class="performance-metric-value" style="color: #4ec74e;">€${projectedGain1Y.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </div>
+            <div class="yearly-projection">
+                <h4>📅 Multi-Year Projections</h4>
+                <div class="projection-row">
+                    <div class="projection-item">
+                        <div class="projection-item-label">1 Year</div>
+                        <div class="projection-item-value">€${projectedValue1Y.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+                    </div>
+                    <div class="projection-item">
+                        <div class="projection-item-label">3 Years</div>
+                        <div class="projection-item-value">€${calculateProjectedValue(totalAmount, avgPerformance, 3).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+                    </div>
+                    <div class="projection-item">
+                        <div class="projection-item-label">5 Years</div>
+                        <div class="projection-item-value">€${projectedValue5Y.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+                    </div>
+                    <div class="projection-item">
+                        <div class="projection-item-label">10 Years</div>
+                        <div class="projection-item-value">€${calculateProjectedValue(totalAmount, avgPerformance, 10).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        return html;
+    }
+
     function displayResults(contract, initialProfile, monthlyProfile, initialFunding, monthlyFunding, initialAllocation, monthlyAllocation) {
         document.getElementById('resultsSection').style.display = 'block';
         document.getElementById('summaryContract').textContent = contract.name;
@@ -495,6 +580,10 @@
         document.getElementById('summaryInitialProfile').textContent = profileConstraints[initialProfile].name;
         document.getElementById('summaryMonthly').textContent = `€${monthlyFunding.toLocaleString('de-DE')}`;
         document.getElementById('summaryMonthlyProfile').textContent = profileConstraints[monthlyProfile].name;
+
+        // Generate performance summaries
+        document.getElementById('initialPerformanceSummary').innerHTML = createPerformanceSummary(initialAllocation, initialFunding);
+        document.getElementById('monthlyPerformanceSummary').innerHTML = createPerformanceSummary(monthlyAllocation, monthlyFunding);
 
         displayTable('initialBody', initialAllocation, initialFunding);
         displayTable('monthlyBody', monthlyAllocation, monthlyFunding);
@@ -514,6 +603,7 @@
             }
             const riskClass = getRiskBadgeClass(fund.riskLevel);
             const esgClass = getESGBadgeClass(fund.esgClassification);
+            const performanceClass = getPerformanceBadgeClass(fund.performance1Y);
 
             const mandatoryIndicator = fund.isMandatory ? '<span class="mandatory-indicator">🔒</span> ' : '';
 
@@ -525,6 +615,7 @@
                 <td><span class="badge ${riskClass}">${fund.riskLevel}</span></td>
                 <td><span class="geo-badge">${fund.geographicFocus}</span></td>
                 <td><span class="esg-badge ${esgClass}">${fund.esgClassification}</span></td>
+                <td><span class="performance-badge ${performanceClass}"><strong>${formatPerformance(fund.performance1Y)}</strong></span></td>
                 <td>${getCategoryBadge(fund.category)}</td>
             `;
             tbody.appendChild(row);
@@ -536,11 +627,15 @@
         totalRow.style.fontWeight = 'bold';
         totalRow.style.borderTop = '2px solid #667eea';
         const totalPercent = allocations.reduce((sum, f) => sum + f.percentage, 0);
+        const avgPerformance = calculateWeightedPerformance(allocations);
         totalRow.innerHTML = `
             <td colspan="2">TOTAL ALLOCATION</td>
             <td>€${totalAmount.toLocaleString('de-DE')}</td>
             <td><strong>${totalPercent.toFixed(1)}%</strong></td>
-            <td colspan="4"></td>
+            <td colspan="2"></td>
+            <td colspan="1"></td>
+            <td><span class="performance-badge" style="background: #667eea; color: white;"><strong>${formatPerformance(avgPerformance)}</strong></span></td>
+            <td></td>
         `;
         tbody.appendChild(totalRow);
     }
@@ -560,24 +655,31 @@
             return;
         }
 
+        const initialAvgPerf = calculateWeightedPerformance(currentAllocation.initialAllocation);
+        const monthlyAvgPerf = calculateWeightedPerformance(currentAllocation.monthlyAllocation);
+
         let csv = 'ODDO BHF Fund Allocation Report\n';
         csv += `Generated: ${new Date().toLocaleDateString()}\n`;
         csv += `Contract: ${contracts[currentAllocation.contractId].name}\n\n`;
 
         csv += 'INITIAL ALLOCATION\n';
         csv += `Profile: ${profileConstraints[currentAllocation.initialProfile].name}\n`;
-        csv += `Total Amount: €${currentAllocation.initialFunding.toLocaleString('de-DE')}\n\n`;
-        csv += 'Fund Name,ISIN,Amount (€),Percentage (%),Risk Level,Geographic Focus,ESG Classification,Category,Mandatory\n';
+        csv += `Total Amount: €${currentAllocation.initialFunding.toLocaleString('de-DE')}\n`;
+        csv += `Portfolio Weighted Average Performance (1Y): ${initialAvgPerf.toFixed(2)}%\n`;
+        csv += `Projected Value (1 Year): €${calculateProjectedValue(currentAllocation.initialFunding, initialAvgPerf, 1).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\n`;
+        csv += 'Fund Name,ISIN,Amount (€),Percentage (%),Risk Level,Geographic Focus,ESG Classification,1Y Performance (%),Category,Mandatory\n';
         currentAllocation.initialAllocation.forEach(fund => {
-            csv += `"${fund.name}","${fund.isin}",${fund.calculatedAmount},${fund.percentage.toFixed(1)},${fund.riskLevel},"${fund.geographicFocus}","${fund.esgClassification}","${fund.category}","${fund.isMandatory ? 'YES' : 'NO'}"\n`;
+            csv += `"${fund.name}","${fund.isin}",${fund.calculatedAmount},${fund.percentage.toFixed(1)},${fund.riskLevel},"${fund.geographicFocus}","${fund.esgClassification}",${fund.performance1Y.toFixed(2)},"${fund.category}","${fund.isMandatory ? 'YES' : 'NO'}"\n`;
         });
 
         csv += '\nMONTHLY ALLOCATION\n';
         csv += `Profile: ${profileConstraints[currentAllocation.monthlyProfile].name}\n`;
-        csv += `Total Amount: €${currentAllocation.monthlyFunding.toLocaleString('de-DE')}\n\n`;
-        csv += 'Fund Name,ISIN,Amount (€),Percentage (%),Risk Level,Geographic Focus,ESG Classification,Category,Mandatory\n';
+        csv += `Total Amount: €${currentAllocation.monthlyFunding.toLocaleString('de-DE')}\n`;
+        csv += `Portfolio Weighted Average Performance (1Y): ${monthlyAvgPerf.toFixed(2)}%\n`;
+        csv += `Projected Value (1 Year): €${calculateProjectedValue(currentAllocation.monthlyFunding, monthlyAvgPerf, 1).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\n`;
+        csv += 'Fund Name,ISIN,Amount (€),Percentage (%),Risk Level,Geographic Focus,ESG Classification,1Y Performance (%),Category,Mandatory\n';
         currentAllocation.monthlyAllocation.forEach(fund => {
-            csv += `"${fund.name}","${fund.isin}",${fund.calculatedAmount},${fund.percentage.toFixed(1)},${fund.riskLevel},"${fund.geographicFocus}","${fund.esgClassification}","${fund.category}","${fund.isMandatory ? 'YES' : 'NO'}"\n`;
+            csv += `"${fund.name}","${fund.isin}",${fund.calculatedAmount},${fund.percentage.toFixed(1)},${fund.riskLevel},"${fund.geographicFocus}","${fund.esgClassification}",${fund.performance1Y.toFixed(2)},"${fund.category}","${fund.isMandatory ? 'YES' : 'NO'}"\n`;
         });
 
         const element = document.createElement('a');
